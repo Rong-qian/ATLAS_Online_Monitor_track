@@ -129,6 +129,28 @@
 
 ## Summary
 
+- Started event display integration.
+
+## Added
+
+- Added tabs for residuals, efficiency, and event displays.
+- The error log now displays a short message when there are no errors.
+
+## Changed
+
+- Moved tabs into a 'Displays' folder for organization.
+- Tab width/height now depend on common variables set in the TabPanel 
+  constructor.
+- All tabs with canvases now inherit from 'CanvasTab'.
+- Closing a tab now opens the tab immediately before the closed tab.
+    - TODO: Try opening the most recently viewed tab instead.
+
+-------------------------------------------------------------------------------
+
+## 2024-04-22
+
+## Summary
+
 - Tab and menubar system reworks.
 
 ## Added

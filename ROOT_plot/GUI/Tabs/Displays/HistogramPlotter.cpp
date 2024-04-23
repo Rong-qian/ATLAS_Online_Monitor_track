@@ -28,7 +28,7 @@ void HistogramPlotter::update() {
 
 	for(int i = 0; i < histograms.size(); ++i) {
 
-		canvas->GetCanvas()->cd(i + 1);
+		GetCanvas()->cd(i + 1);
 
 		// TODO: Try to break this dependence on DAQData. It's messy as heck,
 		//       and makes it weird to use the HistogramPlotter for anything 
@@ -41,6 +41,6 @@ void HistogramPlotter::update() {
 		data.unlock();
 	}
 
-	canvas->GetCanvas()->Update();
+	GetCanvas()->Update();
 
 }

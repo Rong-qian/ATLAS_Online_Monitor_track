@@ -19,8 +19,6 @@ public:
 
 	virtual ~UITab();
 
-	virtual void teardown();
-
 	virtual void update() = 0;
 
 protected:
@@ -29,5 +27,8 @@ protected:
 
 	void makeConnections ();
 	void breakConnections();
+
+	int width;
+	int height;
 
 };

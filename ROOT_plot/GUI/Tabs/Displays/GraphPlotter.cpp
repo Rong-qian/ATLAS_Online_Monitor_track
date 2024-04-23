@@ -26,7 +26,7 @@ void GraphPlotter::update() {
 
 	for(int i = 0; i < graphs.size(); ++i) {
 
-		canvas->GetCanvas()->cd(i + 1);
+		GetCanvas()->cd(i + 1);
 
 		// TODO: Try to break this dependence on DAQData. It's messy as heck,
 		//       and makes it weird to use the GraphPlotter for anything 
@@ -50,6 +50,6 @@ void GraphPlotter::update() {
 
 	}
 
-	canvas->GetCanvas()->Update();
+	GetCanvas()->Update();
 
 }

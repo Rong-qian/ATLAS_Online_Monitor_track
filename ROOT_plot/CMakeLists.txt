@@ -145,10 +145,14 @@ set(monitor_HEADERS
 	GUI/Components/ProgressBar.h
 	GUI/Tabs/TabPanel.h
 	GUI/Tabs/UITab.h
-	GUI/Tabs/PlotWindow.h
-	GUI/Tabs/GraphPlotter.h
-	GUI/Tabs/HistogramPlotter.h
-	GUI/Tabs/ErrorView.h
+	GUI/Tabs/Displays/CanvasTab.h
+	GUI/Tabs/Displays/PlotWindow.h
+	GUI/Tabs/Displays/GraphPlotter.h
+	GUI/Tabs/Displays/HistogramPlotter.h
+	GUI/Tabs/Displays/ErrorView.h
+	GUI/Tabs/Displays/EventDisplay.h
+	GUI/Tabs/Displays/ResidualsDisplay.h
+	GUI/Tabs/Displays/EfficiencyDisplay.h
 	DAQMonitor/DAQState.h
 	DAQMonitor/DataRunOperations.h
 	DAQMonitor/LockableStream.h
@@ -183,10 +187,14 @@ set(monitor_SOURCES
 	GUI/Components/ProgressBar.cpp
 	GUI/Tabs/TabPanel.cpp
 	GUI/Tabs/UITab.cpp
-	GUI/Tabs/PlotWindow.cpp
-	GUI/Tabs/GraphPlotter.cpp
-	GUI/Tabs/HistogramPlotter.cpp
-	GUI/Tabs/ErrorView.cpp
+	GUI/Tabs/Displays/CanvasTab.cpp
+	GUI/Tabs/Displays/PlotWindow.cpp
+	GUI/Tabs/Displays/GraphPlotter.cpp
+	GUI/Tabs/Displays/HistogramPlotter.cpp
+	GUI/Tabs/Displays/ErrorView.cpp
+	GUI/Tabs/Displays/EventDisplay.cpp
+	GUI/Tabs/Displays/ResidualsDisplay.cpp
+	GUI/Tabs/Displays/EfficiencyDisplay.cpp
 	DAQMonitor/DAQState.cpp
 	DAQMonitor/DataRunOperations.cpp
 	DAQMonitor/LockableStream.cpp

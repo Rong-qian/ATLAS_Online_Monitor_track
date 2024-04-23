@@ -125,7 +125,7 @@ DAQManager::DAQManager(
 
         // splitter->SetFrame(leftPanel, true);
 
-        viewport = new TabPanel(mainPanel);
+        viewport = new TabPanel(mainPanel, 1250, 850);
         mainPanel->AddFrame(viewport, new TGLayoutHints(kLHintsExpandY));
 
             viewport->AttachToMenu(viewMenu);

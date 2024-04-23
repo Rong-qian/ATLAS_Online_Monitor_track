@@ -11,19 +11,19 @@
 
 #include "TGHtml.h"
 
-#include "UITab.h"
+#include "../UITab.h"
 
-#include "GUI/Components/PairTable.h"
+#include "../../Components/PairTable.h"
 
 class ErrorView : public UITab {
 
 public:
 
-	ErrorView(const TGWindow *p);
+	ErrorView(const TGWindow *p, int width, int height);
 
 	virtual ~ErrorView();
 
-	void update();
+	virtual void update() override;
 
 private:
 

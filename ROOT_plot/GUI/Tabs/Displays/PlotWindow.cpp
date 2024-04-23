@@ -4,13 +4,6 @@
 
 using namespace std;
 
-void PlotWindow::teardown() {
-
-	delete canvas;
-	canvas = nullptr;
-
-}
-
 PlotWindow::PlotWindow(
 	const TGWindow *p, 
 	int canvasPanels,
@@ -18,22 +11,21 @@ PlotWindow::PlotWindow(
 	int w, 
 	int h,
 	int rows
-) : UITab(p) {
-
-	canvas = new TRootEmbeddedCanvas(title.data(), this, w, h);
-	AddFrame(canvas, new TGLayoutHints(kLHintsCenterX));
+) : CanvasTab(p, title, w, h) {
 
 	int count = canvasPanels;
 	int cols = count / rows;
     if(count % rows != 0) ++cols;
 
-    canvas->GetCanvas()->Divide(cols, rows);
-
-	makeConnections();
+    GetCanvas()->Divide(cols, rows);
 
 	SetWindowName(title.data());
 	MapSubwindows();
 	Resize(GetDefaultSize());
 	MapWindow();
+
+}
+
+PlotWindow::~PlotWindow() {
 
 }

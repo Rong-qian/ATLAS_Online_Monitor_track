@@ -3,45 +3,46 @@
 // TODO: Try to get rid of this dependency?
 #include "DAQMonitor/DataModel/DAQData.h"
 
-#include "ErrorView.h"
-#include "GraphPlotter.h"
-#include "HistogramPlotter.h"
+#include "Displays/ErrorView.h"
+#include "Displays/GraphPlotter.h"
+#include "Displays/HistogramPlotter.h"
+#include "Displays/EventDisplay.h"
+#include "Displays/ResidualsDisplay.h"
+#include "Displays/EfficiencyDisplay.h"
 
 using namespace std;
-
-// TODO: Allow setting tab frame sizes in one place. E.g. in the constructor
-
-TabPanel::TabPanel(const TGWindow *p) 
-	: TGTab(p) {
-
-    // TODO: Base tab can be expanded into an info panel of some sort -- like a 
-    //       readme or like the info screens that pop up sometimes talking about e.g.
-    //       program title/version/usage
-	baseTab = new TGCompositeFrame(this, 1250, 850, kFixedSize);
-	AddTab("Home", baseTab);
-
-		baseLabel = new TGLabel(baseTab, "Open tabs from the view menu");
-		baseTab->AddFrame(baseLabel, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY));
-
-	makeConnections();
-
-}
-
-void TabPanel::makeConnections() {
-
-	Connect(
-		"CloseTab(Int_t)", 
-		"TabPanel", 
-		this, 
-		"handleCloseTab(int)"
-	);
-
-}
 
 // Add new tabs here
 void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 	DAQData &data = DAQData::getInstance();
+
+	/*
+     * To add a new tab, add an entry to the tab menu or one of its submenus.
+     * AddEntry will add an option to the View menu or one of its submenus.
+     * The option's name will be given by the first parameter to AddEntry,
+     * and the behavior it should perform on selection will be given by the
+     * second parameter.
+     *
+     * Pass a lambda into the second parameter. The lambda should return
+     * nothing, and should accept a single integer argument -- this will be
+     * the ID of the entry in ROOT's TGPopupMenu representation of
+     * the menu. The lambda should check if the tab already exists with 
+     * hasTab(). If it doesn't, construct a tab object as a subclass of 
+     * UITab, then call buildTab("[Tab title]", [pointer to tab object]).
+     *
+     * Make sure that the tab titles passed to hasTab() and buildTab() match.
+	 *
+     * Keep in mind that UITabs are expected to clean themselves up when 
+     * destructed. Override the teardown() function if need be, but make sure
+     * the parent teardown() gets called. As long as that's done, the TabPanel
+     * will delete tabs automatically when they're closed.
+     *
+     * After the tab is constructed and no matter whether the tab exists or
+     * not, call switchTab("[Tab title]") at the end.
+	 * 
+	 * And that's it!
+     */
 
 	///////////////////////////////////////////////////////////////////////////
 	// ADC Tabs
@@ -51,7 +52,7 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 		adcMenu->AddEntry("ADC Overview", [this, &data](int id) {
 
-			if(!GetTabTab("ADC Overview")) {
+			if(!hasTab("ADC Overview")) {
 
 				vector<TH1*> plotList(
 					data.plots.p_tdc_adc_time.begin(),
@@ -62,8 +63,8 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 					this,
 					plotList,
 					"ADC Plots",
-					1250,
-					850,
+					width,
+					height,
 					4
 				);
 
@@ -71,7 +72,6 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 			}
 
-			// Switch to the new tab
 			SetTab("ADC Overview");
 
 		});
@@ -88,7 +88,7 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 						+ to_string(i) 
 						+ string(" ADC Channels");
 
-					if(!GetTabTab(plotTitle.data())) {
+					if(!hasTab(plotTitle.data())) {
 
 						vector<TH1*> plotList(
 							data.plots.p_adc_time[i].begin(),
@@ -99,8 +99,8 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 							this,
 							plotList,
 							plotTitle,
-							1250,
-							850,
+							width,
+							height,
 							4
 						);
 
@@ -108,7 +108,6 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 					}
 
-					// Switch to the new tab
 					SetTab(plotTitle.data());
 
 				}
@@ -124,7 +123,7 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 		tdcMenu->AddEntry("TDC Overview", [this, &data](int id) {
 
-			if(!GetTabTab("TDC Overview")) {
+			if(!hasTab("TDC Overview")) {
 
 				vector<TH1*> plotList(
 					data.plots.p_tdc_tdc_time_corrected.begin(),
@@ -135,8 +134,8 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 					this,
 					plotList,
 					"TDC Plots",
-					1250,
-					850,
+					width,
+					height,
 					4
 				);
 
@@ -144,7 +143,6 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 			}
 
-			// Switch to the new tab
 			SetTab("TDC Overview");
 
 		});
@@ -161,7 +159,7 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 						+ to_string(i)
 						+ string(" TDC Channels");
 
-					if(!GetTabTab(plotTitle.data())) {
+					if(!hasTab(plotTitle.data())) {
 
 						vector<TH1*> plotList(
 							data.plots.p_tdc_time_corrected[i].begin(),
@@ -172,8 +170,8 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 							this,
 							plotList,
 							plotTitle,
-							1250,
-							850,
+							width,
+							height,
 							4
 						);
 
@@ -181,7 +179,6 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 					}
 
-					// Switch to the new tab
 					SetTab(plotTitle.data());
 
 				}
@@ -192,19 +189,75 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 	tabMenu->AddSeparator();
 
 	///////////////////////////////////////////////////////////////////////////
+	// Event Displays
+	///////////////////////////////////////////////////////////////////////////
+
+	tabMenu->AddEntry("Residuals", [this](int id) {
+
+		if(!hasTab("Residuals")) {
+
+			ResidualsDisplay *residuals = new ResidualsDisplay(
+				this, 
+				width, 
+				height
+			);
+
+			buildTab("Residuals", residuals);
+
+		}
+
+		SetTab("Residuals");
+
+	});
+
+	tabMenu->AddEntry("Efficiency", [this](int id) {
+
+		if(!hasTab("Efficiency")) {
+
+			EfficiencyDisplay *efficiency = new EfficiencyDisplay(
+				this, 
+				width, 
+				height
+			);
+
+			buildTab("Efficiency", efficiency);
+
+		}
+
+		SetTab("Efficiency");
+
+	});
+
+	tabMenu->AddEntry("Event Display", [this](int id) {
+
+		if(!hasTab("Event Display")) {
+
+			EventDisplay *eventDisplay = new EventDisplay(this, width, height);
+
+			buildTab("Event Display", eventDisplay);
+
+		}
+
+		SetTab("Event Display");
+
+	});
+
+	tabMenu->AddSeparator();
+
+	///////////////////////////////////////////////////////////////////////////
 	// Noise Rate Tab
 	///////////////////////////////////////////////////////////////////////////
 
 	tabMenu->AddEntry("Noise Rate", [this, &data](int id) {
 
-		if(!GetTabTab("Noise Rate")) {
+		if(!hasTab("Noise Rate")) {
 
 			GraphPlotter *noiseDisplay = new GraphPlotter(
 				this,
 				data.plots.p_tdc_hit_rate_graph,
 				"Noise Rate Display",
-				1250,
-				850,
+				width,
+				height,
 				4
 			);
 
@@ -212,7 +265,6 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 		}
 
-		// Switch to the new tab
 		SetTab("Noise Rate");
 
 	});
@@ -223,15 +275,14 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 	tabMenu->AddEntry("Error Log", [this](int id) {
 
-		if(!GetTabTab("Error Log")) {
+		if(!hasTab("Error Log")) {
 
-			ErrorView *errorViewer = new ErrorView(this);
+			ErrorView *errorViewer = new ErrorView(this, width, height);
 
 			buildTab("Error Log", errorViewer);
 
 		}
 
-		// Switch to the new tab
 		SetTab("Error Log");
 
 	});
@@ -260,6 +311,33 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 }
 
+TabPanel::TabPanel(const TGWindow *p, int width, int height) 
+	: TGTab(p), width(width), height(height) {
+
+    // TODO: Base tab can be expanded into an info panel of some sort -- like a 
+    //       readme or like the info screens that pop up sometimes talking about e.g.
+    //       program title/version/usage
+	baseTab = new TGCompositeFrame(this, width, 850, kFixedSize);
+	AddTab("Home", baseTab);
+
+		baseLabel = new TGLabel(baseTab, "Open tabs from the view menu");
+		baseTab->AddFrame(baseLabel, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY));
+
+	makeConnections();
+
+}
+
+void TabPanel::makeConnections() {
+
+	Connect(
+		"CloseTab(Int_t)", 
+		"TabPanel", 
+		this, 
+		"handleCloseTab(int)"
+	);
+
+}
+
 void TabPanel::buildTab(const string &label, UITab *tab) {
 
 	AddTab(label.data(), tab);
@@ -279,5 +357,14 @@ void TabPanel::handleCloseTab(int id) {
 	Layout();
 
 	delete tab;
+
+	// Switch to the tab just before the one we closed
+	if(id != 0) SetTab(id - 1);
+
+}
+
+bool TabPanel::hasTab(const string &title) {
+
+	return GetTabTab(title.data());
 
 }

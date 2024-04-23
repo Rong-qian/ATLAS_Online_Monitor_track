@@ -18,11 +18,24 @@
 #include "../Components/Submenu.h"
 #include "UITab.h"
 
+/*
+ * NOTE: New tabs should inherit from UITab.h. They can be added into the GUI
+ *       by building them in the implementation of AttachToMenu(). See that
+ *       implementation for more notes.
+ */
+
 class TabPanel : public TGTab {
 
 public:
 
-	TabPanel(const TGWindow *p);
+	/**
+	 * Constructor.
+	 * 
+	 * @param width The width of constituent tab windows.
+	 * 
+	 * @param height The height of constituent tab windows.
+	 */
+	TabPanel(const TGWindow *p, int width, int height);
 
 	/**
 	 * Associates the tab panel with tabMenu. tabMenu will be populated with
@@ -31,6 +44,11 @@ public:
 	 * REQUIRES: tabMenu is an empty Submenu.
 	 */
 	void AttachToMenu(Submenu *tabMenu);
+
+	/**
+	 * Returns true if a tab with the given title exists, and false otherwise.
+	 */
+	bool hasTab(const std::string &title);
 
 	/**
 	 * Internal use only. Signal handler.
@@ -49,6 +67,10 @@ private:
 
 		TGLabel *baseLabel;
 
+	// REQUIRES: A tab associated with 'title' does not already exist.
 	void buildTab(const std::string &title, UITab *tab);
+
+	int width;
+	int height;
 
 };
