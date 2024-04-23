@@ -199,6 +199,7 @@ void DataRun::startRun() {
         data.tc = TimeCorrection(cp);
         // data.tc.Read();
         data.recoUtil = RecoUtility(cp.items("RecoUtility"));
+        data.rtp = RTParam(cp);
 
     } catch(int e) {
 

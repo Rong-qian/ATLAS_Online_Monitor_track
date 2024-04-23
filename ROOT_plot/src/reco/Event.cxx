@@ -57,17 +57,6 @@ namespace MuonReco {
     id       = ID;
     update();
   }
-
-  Event::Event(const Event &e) {
-    trigs    = e.TrigSignals();
-    sigs     = e.WireSignals();
-    trigHits = e.TriggerHits();
-    sigHits  = e.WireHits();
-    clusters = e.Clusters();
-    tracks   = e.Tracks();
-    id       = e.ID();
-    update();
-  }
   
   std::vector<Signal> Event::WireSignals() const {
     return sigs;

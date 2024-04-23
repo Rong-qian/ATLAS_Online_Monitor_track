@@ -110,6 +110,11 @@
   and tab system but across the board.
 - Make sure tabs get destroyed when they're closed. Check the storeRemoved
   parameter in RemoveTab(), and consider deleting explicitly.
+- The ROOT warnings about TStreamerInfo that show up when a run gets its first
+  set of data come from creating TTree branches from events in 
+  Plots::binEvent(). They probably can be fixed by adding ClassDef and ClassImp
+  macros to Event and/or RecoObject. The LinkDef then needs to deal with the
+  class and namespace.
 
 ## FIXME
 
@@ -130,11 +135,19 @@
 ## Summary
 
 - Started event display integration.
+    - Residuals Display ...COMPLETE
+    - Efficiency Display...PENDING
+    - Event Display     ...PENDING
 
 ## Added
 
 - Added tabs for residuals, efficiency, and event displays.
 - The error log now displays a short message when there are no errors.
+- Added residuals and efficiency plots to Plots.h.
+- Populated residuals plots in Plots::binEvents().
+- Added hit clustering to EventDecoding::processEvents().
+- EventDecoding::processEvents() now sets Event::SetPassCheck() with the result
+  of recoUtil::CheckEvent().
 
 ## Changed
 
@@ -144,6 +157,12 @@
 - All tabs with canvases now inherit from 'CanvasTab'.
 - Closing a tab now opens the tab immediately before the closed tab.
     - TODO: Try opening the most recently viewed tab instead.
+
+## Removed
+
+- MUON_RECO -- Removed unnecessary copy constructor in Event.h/cpp. There's no
+               explicit heap memory that needs to be copied, and the existing
+               constructor fails to preserve all data members.
 
 -------------------------------------------------------------------------------
 

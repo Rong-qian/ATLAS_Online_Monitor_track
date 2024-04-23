@@ -52,11 +52,13 @@ void processEvent(
 	RecoUtility    &recoUtil
 ) {
 
+	int status = 0;
+
 	recoUtil.DoHitFinding(&e, &tc, geo);
+	recoUtil.DoHitClustering(&e);
 
-	// TODO: No hit clustering?
-
-	e.SetPassCheck(true);
+	bool pass_event_check = recoUtil.CheckEvent(e, &status);
+	e.SetPassCheck(pass_event_check);
 	e.CheckClusterTime();
 
 }

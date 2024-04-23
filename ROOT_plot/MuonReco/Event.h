@@ -31,7 +31,6 @@ namespace MuonReco {
     Event(std::vector<Signal> triggers, std::vector<Signal> signals, std::vector<Hit> wHits,
           std::vector<Hit>    tHits,    std::vector<Cluster> clusts, std::vector<Track> trks,
           unsigned long ID);
-    Event(const Event &e);
 
     std::vector<Signal>  TrigSignals() const;
     std::vector<Signal>  WireSignals() const;

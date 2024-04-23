@@ -22,6 +22,7 @@
 #include "MuonReco/Geometry.h"
 #include "MuonReco/TimeCorrection.h"
 #include "MuonReco/RecoUtility.h"
+#include "MuonReco/RTParam.h"
 
 struct DAQData {
 
@@ -41,6 +42,7 @@ struct DAQData {
     MuonReco::Geometry       geo     ;
     MuonReco::TimeCorrection tc      ;
     MuonReco::RecoUtility    recoUtil;
+    MuonReco::RTParam        rtp     ;
 
     int totalEventCount = 0;
     int packetCount     = 0;

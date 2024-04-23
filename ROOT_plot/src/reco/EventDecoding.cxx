@@ -215,7 +215,7 @@ namespace MuonReco {
     // RecoUtility::DoHitFinding(e, tc, geo);
     // TODO: No hit clustering?
 
-    e->SetPassCheck(true);
+    e->SetPassCheck();
     e->CheckClusterTime();
 
   }

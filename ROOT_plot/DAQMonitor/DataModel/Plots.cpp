@@ -6,6 +6,8 @@
 #include "GlobalIncludes.h"
 
 #include "MuonReco/Geometry.h"
+#include "MuonReco/RTParam.h"
+#include "MuonReco/TrackParam.h"
 
 using namespace MuonReco;
 using namespace std;
@@ -13,7 +15,7 @@ using namespace std;
 // TODO: Is there a better place to put this? E.g. Geometry.cpp?
 const double MATCH_WINDOW = 1.5; // us
 
-Plots::Plots(const Plots &other) : geo(other.geo) {
+Plots::Plots(const Plots &other) : geo(other.geo), rtp(other.rtp) {
 
 	p_leading_time  = dynamic_cast<TH1F*>(other.p_leading_time ->Clone());
 	p_trailing_time = dynamic_cast<TH1F*>(other.p_trailing_time->Clone());
@@ -57,13 +59,16 @@ Plots::Plots(const Plots &other) : geo(other.geo) {
 
 	}
 
-	hitByLC     = dynamic_cast<TH2D*>(other.hitByLC    ->Clone());
-	badHitByLC  = dynamic_cast<TH2D*>(other.badHitByLC ->Clone());
-	goodHitByLC = dynamic_cast<TH2D*>(other.goodHitByLC->Clone());
+	hitByLC         = dynamic_cast<TH2D*>(other.hitByLC        ->Clone());
+	badHitByLC      = dynamic_cast<TH2D*>(other.badHitByLC     ->Clone());
+	goodHitByLC     = dynamic_cast<TH2D*>(other.goodHitByLC    ->Clone());
+	tube_efficiency = dynamic_cast<TH2D*>(other.tube_efficiency->Clone());
+
+	residuals       = dynamic_cast<TH1D*>(other.residuals      ->Clone());
 
 }
 
-Plots::Plots(Geometry &geo) : geo(geo) {
+Plots::Plots(Geometry &geo, RTParam &rtp) : geo(geo), rtp(rtp) {
 
 	TString plot_name_buffer;
 
@@ -238,6 +243,22 @@ Plots::Plots(Geometry &geo) : geo(geo) {
 	);
 	goodHitByLC->SetStats(0);
 
+	tube_efficiency = new TH2D(
+		"tube_efficiency",
+		";Layer;Column",
+		Geometry::MAX_TUBE_COLUMN, -0.5, Geometry::MAX_TUBE_COLUMN - 0.5,
+		Geometry::MAX_TUBE_LAYER , -0.5, Geometry::MAX_TUBE_LAYER  - 0.5
+	);
+
+	residuals = new TH1D(
+		"residuals",
+		"Residuals;Residual [#mum];Number of hits/2 [#mum]",
+		500,
+		-500,
+		500
+	);
+	residuals->SetStats(0);
+
 }
 
 void Plots::updateHitRate(int total_events) {
@@ -269,11 +290,7 @@ void Plots::updateHitRate(int total_events) {
 
 }
 
-void Plots::binEvent(const Event &e) {
-
-	// TODO: Event display
-	// TODO: Go through DAQ.cpp and find everything we need to include
-	// TODO: Make sure all plots print
+void Plots::binEvent(Event &e) {
 
 	for(const Hit &hit : e.WireHits()) {
 
@@ -301,6 +318,123 @@ void Plots::binEvent(const Event &e) {
 		
 		}
 		p_hits_distribution[hitL]->Fill(hitC);
+
+	}
+
+	TrackParam tp;
+	tp.SetRT(&rtp);
+	tp.setVerbose(0);
+	tp.setMaxResidual(1000000);
+
+	// Residuals, efficiency, and event display modified from work by 
+	// Rongqian Qian. See:
+	// https://github.com/Rong-qian/ATLAS_Online_Monitor/
+	if(e.Pass()) {
+
+		// TODO: Shouldn't this object be persistent?
+		//         -- It isn't in the legacy DAQ.cpp though
+		TTree *optTree = new TTree("optTree", "optTree");
+
+		optTree->Branch("event", "Event", &e);
+		optTree->Fill();
+
+		tp.setTarget(optTree);
+		tp.setRangeSingle(0);
+		tp.setIgnoreNone();
+		tp.optimize();
+
+		// Populate residuals
+		for(Cluster &c : e.Clusters()) {
+
+			for(Hit &hit : c.Hits()) {
+
+				residuals->Fill(tp.Residual(hit) * 1000.0);
+
+			}
+
+		}
+
+		// Populate efficiency
+		/*
+		double _hitX, _hitY;
+		for(int tdc_index = 0; tdc_index < Geometry::MAX_TDC; ++tdc_index) {
+
+			for(int ch_index = 0; ch_index < Geometry::MAX_TDC_CHANNEL; ++ch_index) {
+
+				if(geo.IsActiveTDCChannel(tdc_index, ch_index)) {
+
+					int iL, iC;
+
+					geo.GetHitLayerColumn(tdc_index, ch_index, &iL, &iC);
+					geo.GetHitXY(tdc_index, ch_index, &_hitX, &_hitY);
+
+					// get track x position and figure out what tube(s) it may go through
+					double trackDist = tp.Distance_XY(_hitX, _hitY);
+
+					if(trackDist <= Geometry::column_distance / 2) {
+
+						bool tubeIsHit = false;
+
+						for(Hit hit : e.Hits()) {
+
+							int hit_layer;
+							int hit_column;
+
+							geo.GetHitLayerColumn(
+								hit.TDC(), 
+								hit.Channel(),
+								&hit_layer,
+								&hit_column
+							);
+
+							if(hit_layer == iL && hit_column == iC) {
+
+								tubeIsHit = true;
+
+							}
+
+						}
+
+						int col = iC;
+
+						if(!tubeIsHit) {
+
+							nMiss[iL][col] = nMiss[iL][col] + 1.0;
+
+						} else {
+
+							nHits[iL][col] = nHits[iL][col] + 1.0;
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		for(int iL = 0; iL < Geometry::MAX_TUBE_LAYER; ++iL) {
+
+			for(int iC = 0; iC < Geometry::MAX_TUBE_COLUMN; ++iC) {
+
+				if(nHits.at(iL).at(iC)) {
+
+					tube_efficiency->SetBinContent(
+						iC + 1, 
+						iL + 1, 
+						nHits[iL][iC] / (nHits[iL][iC] + nMiss[iL][iC])
+					);
+
+				}
+
+			}
+
+		}
+		*/
+
+		delete optTree;
 
 	}
 
@@ -375,8 +509,11 @@ void Plots::clear() {
 
 	}
 
-	hitByLC    ->Reset();
-	badHitByLC ->Reset();
-	goodHitByLC->Reset();
+	hitByLC        ->Reset();
+	badHitByLC     ->Reset();
+	goodHitByLC    ->Reset();
+	tube_efficiency->Reset();
+
+	residuals      ->Reset();
 
 }
