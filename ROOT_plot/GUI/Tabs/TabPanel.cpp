@@ -6,7 +6,7 @@
 #include "Displays/ErrorView.h"
 #include "Displays/GraphPlotter.h"
 #include "Displays/HistogramPlotter.h"
-#include "Displays/EventDisplay.h"
+#include "Displays/EventTab.h"
 #include "Displays/ResidualsDisplay.h"
 #include "Displays/EfficiencyDisplay.h"
 
@@ -232,7 +232,7 @@ void TabPanel::AttachToMenu(Submenu *tabMenu) {
 
 		if(!hasTab("Event Display")) {
 
-			EventDisplay *eventDisplay = new EventDisplay(this, width, height);
+			EventTab *eventDisplay = new EventTab(this, width, height);
 
 			buildTab("Event Display", eventDisplay);
 

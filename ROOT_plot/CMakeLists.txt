@@ -76,6 +76,7 @@ set(p2Objs_HEADERS
 	MuonReco/Event.h
 	MuonReco/Track.h
 	MuonReco/Geometry.h
+	MuonReco/EventDisplay.h
 )
 
 set(p2Objs_SOURCES
@@ -100,6 +101,7 @@ set(p2Objs_SOURCES
 	src/reco/Event.cxx
 	src/reco/Track.cxx
 	src/reco/Geometry.cxx
+	src/reco/EventDisplay.cxx
 )
 
 set(p2Core_HEADERS
@@ -165,7 +167,7 @@ set(monitor_HEADERS
 	GUI/Tabs/Displays/GraphPlotter.h
 	GUI/Tabs/Displays/HistogramPlotter.h
 	GUI/Tabs/Displays/ErrorView.h
-	GUI/Tabs/Displays/EventDisplay.h
+	GUI/Tabs/Displays/EventTab.h
 	GUI/Tabs/Displays/ResidualsDisplay.h
 	GUI/Tabs/Displays/EfficiencyDisplay.h
 	DAQMonitor/DAQState.h
@@ -207,7 +209,7 @@ set(monitor_SOURCES
 	GUI/Tabs/Displays/GraphPlotter.cpp
 	GUI/Tabs/Displays/HistogramPlotter.cpp
 	GUI/Tabs/Displays/ErrorView.cpp
-	GUI/Tabs/Displays/EventDisplay.cpp
+	GUI/Tabs/Displays/EventTab.cpp
 	GUI/Tabs/Displays/ResidualsDisplay.cpp
 	GUI/Tabs/Displays/EfficiencyDisplay.cpp
 	DAQMonitor/DAQState.cpp

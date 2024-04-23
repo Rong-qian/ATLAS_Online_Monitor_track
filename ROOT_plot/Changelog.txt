@@ -127,6 +127,7 @@
     - We can have a field for setting it in the Settings panel.
 - Should Geometry's run number be coming from the conf file or system time?
 - Should we be reading/writing the time correction?
+- Some Plot members are not copied in the copy constructor.
 
 -------------------------------------------------------------------------------
 
@@ -135,8 +136,8 @@
 ## Summary
 
 - Started event display integration.
-    - Residuals Display ...COMPLETE
-    - Efficiency Display...PENDING
+    - Residuals Display ...COMPLETE?
+    - Efficiency Display...COMPLETE?
     - Event Display     ...PENDING
 
 ## Added
@@ -148,6 +149,7 @@
 - Added hit clustering to EventDecoding::processEvents().
 - EventDecoding::processEvents() now sets Event::SetPassCheck() with the result
   of recoUtil::CheckEvent().
+- Populated efficiency plots in Plots::binEvents().
 
 ## Changed
 
