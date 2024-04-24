@@ -71,7 +71,6 @@ chrono::milliseconds runLoopStep() {
     // Record the loop start time
     auto UIUpdateStartTime = chrono::high_resolution_clock::now();
 
-    // TODO: I don't like the UILock being used at this level.
     // Process UI events.
     UI::UILock.lock();
     try {

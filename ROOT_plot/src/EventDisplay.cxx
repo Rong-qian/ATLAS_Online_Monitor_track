@@ -111,9 +111,11 @@ namespace MuonReco {
     }
 
     if (e.Clusters().size() != 0) {
+
       // draw using clusters 
       for (Cluster c : e.Clusters()) {
         for (Hit h : c.Hits()) {
+
           hit_x = h.X();
           hit_y = h.Y();
           hit_model_orientation.push_back(geo.IsPerpendicular(h.Layer()));

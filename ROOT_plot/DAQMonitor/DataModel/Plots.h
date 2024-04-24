@@ -64,7 +64,7 @@ struct Plots {
 	std::vector<std::vector<double>> nTotal                  ;
 
 	// TODO: This would ideally be in DAQData.
-	std::vector<Event*>              eventDisplayBuffer      ;
+	std::vector<Event>               eventDisplayBuffer      ;
 
 	void binEvent     (MuonReco::Event &e  );
 	void updateHitRate(int total_events    );

@@ -19,8 +19,6 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 		autoDisplay = new TGTextButton(buttonFrame, "Start Autoplay");
 		buttonFrame->AddFrame(autoDisplay, new TGLayoutHints(kLHintsRight));
 
-		// TODO: Implement autoplay feature
-
 		leftButton = new TGTextButton(buttonFrame, "<--");
 		buttonFrame->AddFrame(leftButton, new TGLayoutHints(kLHintsRight));
 
@@ -101,7 +99,7 @@ bool EventTab::showCurrentEvent() {
 	GetCanvas()->Clear();
 	data.eventDisplay.DrawEvent(
 		GetCanvas(),
-		*data.plots.eventDisplayBuffer[currentEventIndex],
+		data.plots.eventDisplayBuffer[currentEventIndex],
 		data.geo,
 		NULL,
 		true

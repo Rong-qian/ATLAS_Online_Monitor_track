@@ -497,7 +497,7 @@ void Plots::binEvent(Event &e) {
 		if(true) {
 
 			e.AddTrack(Track(tp.theta(), tp.y_int()));
-			eventDisplayBuffer.push_back(&e);
+			eventDisplayBuffer.push_back(e);
 
 		}
 
