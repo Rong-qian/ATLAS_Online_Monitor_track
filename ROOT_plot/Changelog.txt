@@ -147,6 +147,7 @@
 - Added distinct version of MuonReco/EventDisplay that do not include a canvas
   automatically. The new version was stripped down and heavily modifed.
 - Drafted implementation of EventDisplay tab.
+- Added autoplay feature to EventDisplay tab.
 
 ## Changed
 

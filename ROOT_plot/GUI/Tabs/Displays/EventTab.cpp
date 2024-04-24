@@ -1,20 +1,25 @@
 #include "EventTab.h"
 
+#include "DAQMonitor/DataModel/DAQData.h"
+
 using namespace MuonReco;
 using namespace std;
 
-// TODO: DEBUG
-#include <iostream>
-
 EventTab::EventTab(const TGWindow *p, int width, int height) 
 	: CanvasTab(p, "Event Display", width, height - 20),
-	  currentEventIndex(-1) {
+	  currentEventIndex(0),
+	  isAutoplaying(false) {
 
 	buttonFrame = new TGHorizontalFrame(this);
 	AddFrame(buttonFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
 		rightButton = new TGTextButton(buttonFrame, "-->");
 		buttonFrame->AddFrame(rightButton, new TGLayoutHints(kLHintsRight));
+
+		autoDisplay = new TGTextButton(buttonFrame, "Start Autoplay");
+		buttonFrame->AddFrame(autoDisplay, new TGLayoutHints(kLHintsRight));
+
+		// TODO: Implement autoplay feature
 
 		leftButton = new TGTextButton(buttonFrame, "<--");
 		buttonFrame->AddFrame(leftButton, new TGLayoutHints(kLHintsRight));
@@ -23,6 +28,8 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 	leftButton->SetEnabled(false);
 
 	// TODO: Weird behavior when opened after a run has started.
+
+	toggleAutoplay();
 
 	// Make sure an update happens when the tab is opened
 	update();
@@ -33,8 +40,13 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 
 void EventTab::makeConnections() {
 
+	leftButton ->Connect("Clicked()", "EventTab", this, "stopAutoplay()"     );
 	leftButton ->Connect("Clicked()", "EventTab", this, "showPreviousEvent()");
+
+	rightButton->Connect("Clicked()", "EventTab", this, "stopAutoplay()"     );
 	rightButton->Connect("Clicked()", "EventTab", this, "showNextEvent()"    );
+
+	autoDisplay->Connect("Clicked()", "EventTab", this, "toggleAutoplay()"   );
 
 }
 
@@ -42,54 +54,84 @@ EventTab::~EventTab() {
 
 }
 
-void EventTab::showNextEvent() {
+void EventTab::toggleAutoplay() {
+
+	if(isAutoplaying) {
+
+		stopAutoplay();
+
+		return;
+
+	}
+
+	startAutoplay();
+
+}
+
+void EventTab::stopAutoplay() {
+
+	isAutoplaying = false;
+
+	autoDisplay->SetText("Start Autoplay");
+
+}
+
+void EventTab::startAutoplay() {
+
+	isAutoplaying = true;
+
+	autoDisplay->SetText("Stop Autoplay");
+
+}
+
+bool EventTab::showCurrentEvent() {
 
 	DAQData &data = DAQData::getInstance();
 
 	data.lock();
 
-	if(currentEventIndex + 1 >= data.plots.eventDisplayBuffer.size()) {
+	if(currentEventIndex >= data.plots.eventDisplayBuffer.size()) {
 
 		data.unlock();
-		return;
+
+		return false;
 
 	}
 
-	Event *e = data.plots.eventDisplayBuffer[currentEventIndex + 1];
+	GetCanvas()->Clear();
+	data.eventDisplay.DrawEvent(
+		GetCanvas(),
+		*data.plots.eventDisplayBuffer[currentEventIndex],
+		data.geo,
+		NULL,
+		true
+	);
+
+	data.unlock();
+
+	return true;
+
+}
+
+void EventTab::showNextEvent() {
 
 	++currentEventIndex;
 
-	resetButtonStates(data);
+	if(!showCurrentEvent()) --currentEventIndex;
 
-	GetCanvas()->Clear();
-	data.eventDisplay.DrawEvent(GetCanvas(), *e, data.geo, nullptr, true);
-
-	data.unlock();
+	resetButtonStates();
 
 }
 
 void EventTab::showPreviousEvent() {
 
-	DAQData &data = DAQData::getInstance();
-
-	data.lock();
-	if(currentEventIndex - 1 < 0) {
-
-		data.unlock();
-		return;
-
-	}
-
-	Event *e = data.plots.eventDisplayBuffer[currentEventIndex - 1];
+	if(currentEventIndex < 1) return;
 
 	--currentEventIndex;
 
-	resetButtonStates(data);
+	showCurrentEvent();
 
-	GetCanvas()->Clear();
-	data.eventDisplay.DrawEvent(GetCanvas(), *e, data.geo, nullptr, true);
-
-	data.unlock();
+	resetButtonStates();
 
 }
 
@@ -99,30 +141,45 @@ void EventTab::update() {
 
 	data.lock();
 
-	if(currentEventIndex >= data.plots.eventDisplayBuffer.size()) {
-
-		currentEventIndex = -1;
-
-	}
-
-	resetButtonStates(data);
-
-	if(currentEventIndex < 0 && !data.plots.eventDisplayBuffer.empty()) {
-
-		data.unlock();
-		showNextEvent();
-
-	}
+	size_t size = data.plots.eventDisplayBuffer.size();
 
 	data.unlock();
 
+	// If autoplaying, automatically show the last event in the buffer.
+	if(isAutoplaying) {
+
+		if(size != 0) currentEventIndex = size - 1;
+
+		showCurrentEvent();
+
+	} else {
+
+		if(currentEventIndex >= size) {
+
+			currentEventIndex = 0;
+
+		}
+
+		if(currentEventIndex == 0 && size != 0) {
+
+			showCurrentEvent();
+
+		}
+
+	}
+
+	resetButtonStates();
+
 }
 
-void EventTab::resetButtonStates(DAQData &data) {
+void EventTab::resetButtonStates() {
 
 	// NOTE: eventDisplayBuffer.size() is a size_t. Don't subtract from it or
 	//       you might end up wrapping around to the very large numbers.
 
+	DAQData &data = DAQData::getInstance();
+
+	data.lock();
 	if(currentEventIndex > 0) {
 		leftButton->SetEnabled(true);
 	}
@@ -135,5 +192,6 @@ void EventTab::resetButtonStates(DAQData &data) {
 	if(currentEventIndex + 2 > data.plots.eventDisplayBuffer.size()) {
 		rightButton->SetEnabled(false);
 	}
+	data.unlock();
 
 }

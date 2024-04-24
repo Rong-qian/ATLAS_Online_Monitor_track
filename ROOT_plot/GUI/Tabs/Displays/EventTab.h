@@ -16,8 +16,6 @@
 
 #include "src/EventDisplay.h"
 
-#include "DAQMonitor/DataModel/DAQData.h"
-
 class EventTab : public CanvasTab {
 
 public:
@@ -30,18 +28,25 @@ public:
 
 	virtual void showNextEvent    ();
 	virtual void showPreviousEvent();
+	virtual void stopAutoplay     ();
+	virtual void startAutoplay    ();
+	virtual void toggleAutoplay   ();
 
 private:
 
 	TGHorizontalFrame *buttonFrame;
 
 		TGTextButton *leftButton ;
+		TGTextButton *autoDisplay;
 		TGTextButton *rightButton;
 
-	int currentEventIndex;
 
-	void resetButtonStates(DAQData &data);
+	virtual void resetButtonStates();
+	virtual bool showCurrentEvent ();
 
 	virtual void makeConnections() override;
+
+	int  currentEventIndex;
+	bool isAutoplaying    ;
 
 };
