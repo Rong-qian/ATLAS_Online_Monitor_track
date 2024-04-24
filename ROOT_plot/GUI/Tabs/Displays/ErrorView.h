@@ -35,9 +35,4 @@ private:
 
 	TGHtml *errorPanel;
 
-	// CONNECTIONS
-
-	void makeConnections ();
-	void breakConnections();
-
 };

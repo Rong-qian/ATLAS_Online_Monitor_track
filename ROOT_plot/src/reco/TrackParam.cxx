@@ -91,6 +91,7 @@ namespace MuonReco {
     double c = TMath::Cos(param[THETA]);
     double s = TMath::Sin(param[THETA]);
     return TMath::Abs(c*(hitX-param[INTERCEPT]) + hitY*s);
+    // return TMath::Abs(s*(hitX) + (param[INTERCEPT] - hitY)*c);
   }
 
 
@@ -169,6 +170,24 @@ namespace MuonReco {
       chiSq += TMath::Power((dist)/(Hit::RadiusError(r[i])), 2);
     }
     return chiSq;
+  }
+
+  double TrackParam::theta() {
+
+    return param[THETA];
+
+  }
+
+  double TrackParam::slope() {
+
+    return TMath::Tan(param[THETA]);
+
+  }
+
+  double TrackParam::y_int() {
+
+    return param[TrackParam::INTERCEPT];
+
   }
 
   double TrackParam::LegendreUpperCurve(double theta, double x_0, double y_0, double r_0) {

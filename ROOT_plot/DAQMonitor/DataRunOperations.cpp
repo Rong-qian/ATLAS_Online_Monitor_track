@@ -241,6 +241,7 @@ void DataRun::startRun() {
 
     data.lock  ();
     data.clear ();
+    data.eventDisplay.Clear();
     data.unlock();
 
     runStarted = true;

@@ -2,19 +2,20 @@
 
 namespace MuonReco {
   Track::Track() {
-    slope = 0; 
+    theta = 0; 
     y_int = 0;
     ori = false;
   }
-  
-  Track::Track(double _slope, double _y_int, bool _ori) {
-    slope = _slope;
-    y_int = _y_int;
-    ori = _ori;
-  }
- 
-  double Track::Slope() {
-    return slope;
+
+  Track::Track(double _theta, double _y_int, bool _ori)
+    : theta(_theta),
+      y_int(_y_int),
+      ori(_ori) {}
+
+  double Track::Theta() {
+
+    return theta;
+
   }
   
   double Track::YInt() {
@@ -25,8 +26,10 @@ namespace MuonReco {
     return ori;
   }
 
-  void Track::SetSlope(double _slope) {
-    slope = _slope;
+  void Track::SetTheta(double _theta) {
+
+    theta = _theta;
+
   }
   
   void Track::SetYInt(double _y_int) {
@@ -38,7 +41,8 @@ namespace MuonReco {
   }
 
   double Track::Distance(double x, double y) {
-    return TMath::Abs(x*slope + y_int - y)/TMath::Sqrt(slope*slope + 1);
+
+    return TMath::Abs(x * TMath::Sin(theta) + (y_int - y) * TMath::Cos(theta));
   }
 
   void Track::Draw() {    

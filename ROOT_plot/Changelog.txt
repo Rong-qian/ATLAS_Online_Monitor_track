@@ -135,6 +135,37 @@
 
 ## Summary
 
+- Display side of the event display tab is now functional.
+
+## Added
+
+- MUON_RECO -- Added slope() and y_int() functions to TrackParam
+            -- Track.h/cxx -- Switched to angle-intercept representation from
+               slope-intercept representation. Removed slope getters/setters
+               in favor of angle getters/setters
+
+- Added distinct version of MuonReco/EventDisplay that do not include a canvas
+  automatically. The new version was stripped down and heavily modifed.
+- Drafted implementation of EventDisplay tab.
+
+## Changed
+
+- EventDisplay modified to reflect Track.h's switch to angle-intercept 
+  representation.
+- Plots::nMiss changed to Plots::nTotal, with implementation altered to match
+  the semantics.
+- EventDisplay::hit_model and EventDisplay::track_model are now local to the
+  draw function, and are reset on every draw.
+- The EventDisplay used in the EventTab is now stored in DAQData.
+- EventDisplay no longer stores a canvas pointer, but now simply accepts a
+  canvas pointer into the draw function.
+
+-------------------------------------------------------------------------------
+
+## 2024-04-22
+
+## Summary
+
 - Started event display integration.
     - Residuals Display ...COMPLETE?
     - Efficiency Display...COMPLETE?

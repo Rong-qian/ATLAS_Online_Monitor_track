@@ -49,6 +49,10 @@ namespace MuonReco {
     std::vector<double> getVerticalAngle  ()                 override;
     std::vector<double> getImpactParameter()                 override;
 
+    double slope();
+    double theta();
+    double y_int();
+
     void tracksystematics(TString systname, int * systindex, double * systerror, double * maxshift, TString & rrsystname, double * systsf, Bool_t floatup) override;
 
     double LegendreLowerCurve(double theta, double x_0, double y_0, double r_0);

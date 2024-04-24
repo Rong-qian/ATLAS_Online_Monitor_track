@@ -9,9 +9,14 @@
 
 #pragma once
 
+#include "TGButton.h"
+#include "TGFrame.h"
+
 #include "CanvasTab.h"
 
-#include "MuonReco/EventDisplay.h"
+#include "src/EventDisplay.h"
+
+#include "DAQMonitor/DataModel/DAQData.h"
 
 class EventTab : public CanvasTab {
 
@@ -23,8 +28,20 @@ public:
 
 	virtual void update() override;
 
+	virtual void showNextEvent    ();
+	virtual void showPreviousEvent();
+
 private:
 
-	// EventDisplay display;
+	TGHorizontalFrame *buttonFrame;
+
+		TGTextButton *leftButton ;
+		TGTextButton *rightButton;
+
+	int currentEventIndex;
+
+	void resetButtonStates(DAQData &data);
+
+	virtual void makeConnections() override;
 
 };
