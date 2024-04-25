@@ -177,6 +177,12 @@ void DataRun::startRun() {
     ///////////////////////////////////////////////////////////////////////////
 
     DAQData &data = DAQData::getInstance();
+    
+    // Clear the DAQData of any data from a previous run
+
+    data.lock  ();
+    data.clear ();
+    data.unlock();
 
     // Configure the geometry and time correction table.
 
@@ -236,13 +242,6 @@ void DataRun::startRun() {
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
-    
-    // Clear the DAQData of any data from a previous run
-
-    data.lock  ();
-    data.clear ();
-    data.eventDisplay.Clear();
-    data.unlock();
 
     runStarted = true;
     state.tempState.runLabel = runLabel;

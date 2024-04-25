@@ -115,6 +115,7 @@
   Plots::binEvent(). They probably can be fixed by adding ClassDef and ClassImp
   macros to Event and/or RecoObject. The LinkDef then needs to deal with the
   class and namespace.
+- Continue autoplaying events after the run has stopped.
 
 ## FIXME
 
@@ -131,7 +132,30 @@
 
 -------------------------------------------------------------------------------
 
-## 2024-04-22
+## 2024-04-25
+
+## Added
+
+- RunView now displays the number of 'Passing Events', which are the events 
+  that pass RecoUtility::CheckEvent().
+
+## Changed
+
+- DAQData::clear() now called before anything else is done with it on the start
+  of a new data run.
+- The eventDisplay is now cleared within DAQData::clear().
+- The first update after the creation of a tab is now performed by TabPanel.cpp
+  instead of in the tab constructor. Tabs no longer need to include a call to
+  update in the constructor.
+
+## Fixed
+
+- Fixed issue where hits and tracks would not be drawn if any Update() call was
+  performed on the EventTab's canvas outside of EventDisplay::Draw().
+
+-------------------------------------------------------------------------------
+
+## 2024-04-24
 
 ## Summary
 
@@ -163,7 +187,7 @@
 
 -------------------------------------------------------------------------------
 
-## 2024-04-22
+## 2024-04-23
 
 ## Summary
 

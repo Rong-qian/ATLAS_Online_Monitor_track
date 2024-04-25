@@ -340,6 +340,8 @@ void TabPanel::makeConnections() {
 
 void TabPanel::buildTab(const string &label, UITab *tab) {
 
+	tab->update();
+
 	AddTab(label.data(), tab);
 	MapSubwindows();
 	Layout();

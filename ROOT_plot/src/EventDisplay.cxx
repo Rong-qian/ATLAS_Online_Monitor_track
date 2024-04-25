@@ -46,21 +46,29 @@ namespace MuonReco {
     bool isphase2data
   ) {
 
-    char canvas_name[256];
-    char canvas_output_name[256];
+    // If the canvas is updated after hit_model and track_model are cleared,
+    // the canvas will not draw hits and tracks, no matter when the draw()
+    // call was made. So we need hit_model and track_model to be persistent.
+    // But we also need them to be in a clear state at the beginning of the
+    // draw call to avoid repeats, so we reset them at the beginning of the
+    // draw.
+    for(TEllipse *hit : hit_model) {
+      delete hit;
+    }
+    hit_model.clear();
+
+    for(TLine *track : track_model) {
+      delete track;
+    }
+    track_model.clear();
+
     double hit_x, hit_y;
     int hit_l, hit_c;
 
-    std::vector<TEllipse*> hit_model;
     std::vector<bool>      hit_model_orientation;
-    std::vector<TLine*>    track_model;
     std::vector<bool>      track_model_orientation;
 
-    // initialize the canvas and draw the background geometry
-    
-    sprintf(canvas_name, "event_id_%lu", e.ID());
-    strcpy(canvas_output_name, canvas_name);
-    strcat(canvas_output_name, ".png");
+    // draw the background geometry
     
     bool has_perp = false;
     for (int counter = 0; counter < geo.orientation().size(); counter++) {
@@ -182,22 +190,8 @@ namespace MuonReco {
     if (outdir != NULL) {
       outdir->WriteTObject(eCanv);
     }
-    if (_dir.CompareTo("")) {
-      // eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
-    }
     eCanv->Modified();
     eCanv->Update();
-
-    for (auto it = hit_model.begin(); it != hit_model.end(); ++it) {
-      delete (*it);
-    }
-    hit_model.clear();
-
-
-    for (auto it = track_model.begin(); it != track_model.end(); ++it) {
-      delete (*it);
-    }
-    track_model.clear();
 
     
   } // end method: Event Display :: Draw Event

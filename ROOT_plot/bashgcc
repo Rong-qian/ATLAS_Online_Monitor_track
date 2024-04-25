@@ -1,4 +1,9 @@
-export PATH=/usr/ROOT/bin:/home/rpm/gcc-6.2.0/gcc-build/bin:/home/rpm/Python-2.7.17:$PATH
-export LD_LIBRARY_PATH=/home/rpm/gcc-6.2.0/gcc-build/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rpm/Python-2.7.17
+# export PATH=/usr/ROOT/bin:/home/rpm/gcc-6.2.0/gcc-build/bin:/home/rpm/Python-2.7.17:$PATH
+# export LD_LIBRARY_PATH=/home/rpm/gcc-6.2.0/gcc-build/lib64:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rpm/Python-2.7.17
 
+# Use these paths when we want to use GDB. GDB expects a different python
+# version.
+export PATH=/usr/ROOT/bin:/home/rpm/gcc-6.2.0/gcc-build/bin:/bin/python:$PATH
+export LD_LIBRARY_PATH=/home/rpm/gcc-6.2.0/gcc-build/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bin/python

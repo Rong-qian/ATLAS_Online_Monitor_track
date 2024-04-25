@@ -2,6 +2,9 @@
 
 #include "DAQMonitor/DataModel/DAQData.h"
 
+// TODO: DEBUG
+#include <iostream>
+
 using namespace MuonReco;
 using namespace std;
 
@@ -13,14 +16,17 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 	buttonFrame = new TGHorizontalFrame(this);
 	AddFrame(buttonFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
+		eventNum = new TGLabel(buttonFrame, "No events to display!");
+		buttonFrame->AddFrame(eventNum, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
+
 		rightButton = new TGTextButton(buttonFrame, "-->");
-		buttonFrame->AddFrame(rightButton, new TGLayoutHints(kLHintsRight));
+		buttonFrame->AddFrame(rightButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
 		autoDisplay = new TGTextButton(buttonFrame, "Start Autoplay");
-		buttonFrame->AddFrame(autoDisplay, new TGLayoutHints(kLHintsRight));
+		buttonFrame->AddFrame(autoDisplay, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
 		leftButton = new TGTextButton(buttonFrame, "<--");
-		buttonFrame->AddFrame(leftButton, new TGLayoutHints(kLHintsRight));
+		buttonFrame->AddFrame(leftButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
 	rightButton->SetEnabled(false);
 	leftButton->SetEnabled(false);
@@ -28,9 +34,6 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 	// TODO: Weird behavior when opened after a run has started.
 
 	toggleAutoplay();
-
-	// Make sure an update happens when the tab is opened
-	update();
 
 	makeConnections();
 
@@ -96,16 +99,22 @@ bool EventTab::showCurrentEvent() {
 
 	}
 
+	Event e = data.plots.eventDisplayBuffer[currentEventIndex];
+	size_t size = data.plots.eventDisplayBuffer.size();
+
+	data.unlock();
+
 	GetCanvas()->Clear();
 	data.eventDisplay.DrawEvent(
 		GetCanvas(),
-		data.plots.eventDisplayBuffer[currentEventIndex],
+		e,
 		data.geo,
 		NULL,
 		true
 	);
 
-	data.unlock();
+	updateLabel(size);
+	resetButtonStates(size);
 
 	return true;
 
@@ -117,8 +126,6 @@ void EventTab::showNextEvent() {
 
 	if(!showCurrentEvent()) --currentEventIndex;
 
-	resetButtonStates();
-
 }
 
 void EventTab::showPreviousEvent() {
@@ -129,7 +136,26 @@ void EventTab::showPreviousEvent() {
 
 	showCurrentEvent();
 
-	resetButtonStates();
+}
+
+void EventTab::updateLabel(size_t size) {
+
+	if(size == 0) {
+
+		eventNum->SetText("No events to display!");
+		eventNum->Resize(eventNum->GetDefaultSize());
+
+		return;
+
+	}
+
+	eventNum->SetText((
+		string("Displaying event ") 
+			+ to_string(currentEventIndex + 1)
+			+ string(" of ")
+			+ to_string(size)).data()
+	);
+	eventNum->Resize(eventNum->GetDefaultSize());
 
 }
 
@@ -150,27 +176,27 @@ void EventTab::update() {
 
 		showCurrentEvent();
 
-	} else {
+		return;
 
-		if(currentEventIndex >= size) {
+	} 
 
-			currentEventIndex = 0;
+	if(currentEventIndex >= size) currentEventIndex = 0;
 
-		}
+	if(currentEventIndex == 0 && size != 0) {
 
-		if(currentEventIndex == 0 && size != 0) {
+		showCurrentEvent();
 
-			showCurrentEvent();
-
-		}
+		return;
 
 	}
 
-	resetButtonStates();
+	updateLabel(size);
+
+	resetButtonStates(size);
 
 }
 
-void EventTab::resetButtonStates() {
+void EventTab::resetButtonStates(size_t size) {
 
 	// NOTE: eventDisplayBuffer.size() is a size_t. Don't subtract from it or
 	//       you might end up wrapping around to the very large numbers.
@@ -181,13 +207,13 @@ void EventTab::resetButtonStates() {
 	if(currentEventIndex > 0) {
 		leftButton->SetEnabled(true);
 	}
-	if(currentEventIndex + 1 < data.plots.eventDisplayBuffer.size()) {
+	if(currentEventIndex + 1 < size) {
 		rightButton->SetEnabled(true);
 	}
 	if(currentEventIndex < 1) {
 		leftButton->SetEnabled(false);
 	}
-	if(currentEventIndex + 2 > data.plots.eventDisplayBuffer.size()) {
+	if(currentEventIndex + 2 > size) {
 		rightButton->SetEnabled(false);
 	}
 	data.unlock();

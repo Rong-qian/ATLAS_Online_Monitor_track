@@ -260,4 +260,6 @@ target_link_libraries(DAQManager PUBLIC libMonitor)
 
 ###############################################################################
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow")
+# Add -g flag to make GDB work
+# Remove -g flag for production builds
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wno-shadow")

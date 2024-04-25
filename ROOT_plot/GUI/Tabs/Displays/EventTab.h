@@ -11,6 +11,7 @@
 
 #include "TGButton.h"
 #include "TGFrame.h"
+#include "TGLabel.h"
 
 #include "CanvasTab.h"
 
@@ -36,13 +37,16 @@ private:
 
 	TGHorizontalFrame *buttonFrame;
 
+		TGLabel      *eventNum   ;
+
 		TGTextButton *leftButton ;
 		TGTextButton *autoDisplay;
 		TGTextButton *rightButton;
 
 
-	virtual void resetButtonStates();
-	virtual bool showCurrentEvent ();
+	virtual void resetButtonStates(size_t size);
+	virtual void updateLabel      (size_t size);
+	virtual bool showCurrentEvent (           );
 
 	virtual void makeConnections() override;
 

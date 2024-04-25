@@ -51,6 +51,8 @@ namespace MuonReco {
   private:
     std::vector<TBox*>     boxes;
     Callable*              rtfunction = 0;
+    std::vector<TEllipse*> hit_model;
+    std::vector<TLine*>    track_model;
 
     void              DrawTDCBorders();
     

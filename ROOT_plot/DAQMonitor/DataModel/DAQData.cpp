@@ -26,6 +26,7 @@ void DAQData::clear () {
 
     processedEvents.clear();
     plots.clear();
+    eventDisplay.Clear();
 
     totalEventCount = 0;
     packetCount     = 0;

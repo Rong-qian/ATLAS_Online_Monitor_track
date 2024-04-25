@@ -21,6 +21,7 @@ void RunView::update(const UpdatePacket &packet) {
 
 	statsTable.setEntry("Packets Recorded", to_string(packet.packetCount    ));
 	statsTable.setEntry("Events Processed", to_string(packet.totalEventCount));
+	statsTable.setEntry("Passing Events"  , to_string(packet.passEventCount ));
 	statsTable.setEntry("Empty Events"    , to_string(packet.emptyEventCount));
 	statsTable.setEntry("Error Count"     , to_string(packet.errorCount     ));
 	statsTable.setEntry("Decoding Error"  , to_string(packet.decodeError    ));

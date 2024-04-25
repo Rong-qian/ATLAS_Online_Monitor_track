@@ -36,8 +36,6 @@ ErrorView::ErrorView(const TGWindow *p, int width, int height) : UITab(p) {
     MapSubwindows();
     Resize(GetDefaultSize());
     MapWindow();
-    
-	update();
 
 }
 

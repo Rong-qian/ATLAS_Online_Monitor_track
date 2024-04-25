@@ -496,14 +496,10 @@ void Plots::binEvent(Event &e) {
 
 		delete optTree;
 
-		// TODO: Clean up and add a condition so not all events
-		//       go on the eventDisplayBuffer.
-		if(true) {
-
-			e.AddTrack(Track(tp.theta(), tp.y_int()));
-			eventDisplayBuffer.push_back(e);
-
-		}
+		// TODO: It would be nice if the eventDisplayBuffer could be in 
+		//       DAQData.
+		e.AddTrack(Track(tp.theta(), tp.y_int()));
+		eventDisplayBuffer.push_back(e);
 
 	}
 
