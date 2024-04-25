@@ -440,6 +440,8 @@ void Plots::binEvent(Event &e) {
 
 					if(trackDist <= Geometry::column_distance / 2) {
 
+						bool tubeIsHit = false;
+
 						for(Hit hit : e.WireHits()) {
 
 							int hit_layer;
@@ -454,14 +456,16 @@ void Plots::binEvent(Event &e) {
 
 							// If this is true, the tube was hit
 							if(hit_layer == iL && hit_column == iC) {
-
-								++nHits[iL][iC];
+									
+								tubeIsHit = true;
 
 							}
 
 						}
 
 						++nTotal[iL][iC];
+
+						if(tubeIsHit) ++nHits[iL][iC];
 
 					}
 
@@ -493,7 +497,7 @@ void Plots::binEvent(Event &e) {
 		delete optTree;
 
 		// TODO: Clean up and add a condition so not all events
-		//       go on.
+		//       go on the eventDisplayBuffer.
 		if(true) {
 
 			e.AddTrack(Track(tp.theta(), tp.y_int()));
