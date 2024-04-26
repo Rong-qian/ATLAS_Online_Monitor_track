@@ -134,6 +134,16 @@
 
 ## 2024-04-26
 
+## Summary
+
+- Working on cleaning up event display tracks. Tracked the issue to failure to
+  properly initialize an RTParam. Working on the RTParam.
+
+## Changed
+
+- Extensive changes to RTParam.cxx.
+- Moved functionality from plots to DAQData.
+
 -------------------------------------------------------------------------------
 
 ## 2024-04-25

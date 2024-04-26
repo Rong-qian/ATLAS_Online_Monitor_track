@@ -232,11 +232,11 @@ void aggregateEventData(const DecodeData &loopData, DAQData &data) {
 
     for(Event &e : data.newEvents) {
 
-        data.plots.binEvent(e);
+        data.binEvent(e);
         
     }
 
-    data.plots.updateHitRate(data.totalEventCount);
+    data.updateHitRate(data.totalEventCount);
 
 }
 

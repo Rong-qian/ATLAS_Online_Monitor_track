@@ -15,14 +15,10 @@
 #include <TH2.h>
 #include <TGraph.h>
 
-#include "MuonReco/Event.h"
-#include "MuonReco/Geometry.h"
-#include "MuonReco/RTParam.h"
-
 // NOTE: There should really only be one of those. DAQData holds it.
 struct Plots {
 
-	Plots(MuonReco::Geometry &geo, MuonReco::RTParam &rtp);
+	Plots();
 
 	Plots         (const Plots &other);
 	void operator=(const Plots &other) = delete; // TODO: It's a little bit
@@ -60,21 +56,6 @@ struct Plots {
 
 	TH1D *                           residuals               ;
 
-	std::vector<std::vector<double>> nHits                   ;
-	std::vector<std::vector<double>> nTotal                  ;
-
-	// TODO: This would ideally be in DAQData.
-	std::vector<Event>               eventDisplayBuffer      ;
-
-	void binEvent     (MuonReco::Event &e  );
-	void updateHitRate(int total_events    );
-	void clear        (                    );
-
-private:
-
-	// NOTE: This is configured externally in DataRunOperations. No need to do
-	//       anything with it here. It's just here to be accessible.
-	MuonReco::Geometry &geo; 
-	MuonReco::RTParam  &rtp;
+	void clear();
 
 };

@@ -93,7 +93,7 @@ bool EventTab::showCurrentEvent() {
 	data.lock();
 
 	// If currentEventIndex is out of bounds, just stop
-	if(currentEventIndex >= data.plots.eventDisplayBuffer.size()) {
+	if(currentEventIndex >= data.eventDisplayBuffer.size()) {
 
 		data.unlock();
 
@@ -102,8 +102,8 @@ bool EventTab::showCurrentEvent() {
 	}
 
 	// Copy the size and event while we're sure data isn't getting modified
-	Event e = data.plots.eventDisplayBuffer[currentEventIndex];
-	size_t size = data.plots.eventDisplayBuffer.size();
+	Event e = data.eventDisplayBuffer[currentEventIndex];
+	size_t size = data.eventDisplayBuffer.size();
 
 	// Release data before the draw to avoid slow operations in the critical
 	// section. We've already gotten local copies of the members we need.
@@ -177,7 +177,7 @@ void EventTab::update() {
 
 	data.lock();
 
-	size_t size = data.plots.eventDisplayBuffer.size();
+	size_t size = data.eventDisplayBuffer.size();
 
 	data.unlock();
 

@@ -1,9 +1,5 @@
 #include "EventDisplay.h"
 
-// TODO: DEBUG
-#include <iostream>
-using namespace std;
-
 namespace MuonReco {
 
   EventDisplay::EventDisplay() {
@@ -93,12 +89,7 @@ namespace MuonReco {
     if (e.Tracks().size() != 0) {
       for (Track t : e.Tracks()) {
         // FIXME: Vertical line problem with y intercept and tangent
-        cout << "Fit: (" << t.XInt() << ", " << t.Theta() << ")" << endl;
-        track_model.push_back(
-          new TLine(
-            t.XInt(), 0, 
-            t.XInt() - 1000 * TMath::Sin(t.Theta()), 1000 * TMath::Cos(t.Theta())
-          ));
+        track_model.push_back(new TLine(t.YInt()/t.Slope(), 0, (t.YInt()-350)/t.Slope(),350));
         track_model.at(track_model.size()-1)->SetLineWidth(1);
         track_model.at(track_model.size()-1)->SetLineColor(kBlack);
         if (t.Orientation()) {
@@ -128,8 +119,6 @@ namespace MuonReco {
           hit_x = h.X();
           hit_y = h.Y();
           hit_model_orientation.push_back(geo.IsPerpendicular(h.Layer()));
-
-          cout << "(" << hit_x << ", " << hit_y << ")" << endl;
       
           if (rtfunction != 0) {
             hit_model.push_back(new TEllipse(hit_x, hit_y, rtfunction->Eval(h), rtfunction->Eval(h)));

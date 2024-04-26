@@ -231,7 +231,7 @@ void SigHandlers::handleDataUpdate() {
 	data.lock();
 	packet.packetCount     = data.packetCount                                  ;
 	packet.totalEventCount = data.totalEventCount                              ;
-	packet.passEventCount  = data.plots.eventDisplayBuffer.size()              ;
+	packet.passEventCount  = data.eventDisplayBuffer.size()                    ;
 	packet.emptyEventCount = data.totalEventCount - data.processedEvents.size();
 	packet.lostPackets     = data.lostPackets                                  ;
 	packet.droppedSignals  = data.droppedSignals                               ;

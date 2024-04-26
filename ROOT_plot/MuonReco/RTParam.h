@@ -18,6 +18,8 @@
 #include "TGraphErrors.h"
 #include "TNamed.h"
 
+#include "DAQMonitor/DataModel/Plots.h"
+
 #include "MuonReco/Parameterization.h"
 #include "MuonReco/Optimizer.h"
 #include "MuonReco/Hit.h"
@@ -53,7 +55,7 @@ namespace MuonReco {
     ~RTParam();
 
     void   Initialize    ();
-    void   Initialize    (TString t0path, TString decodedDataPath);
+    void   Initialize    (TString t0path, Plots &plots);
 
     double Eval          (double time);
     double Eval          (Hit h, double deltaT0=0, double slewScaleFactor=1.0, double sigPropSF=1.0) override;
@@ -100,7 +102,7 @@ namespace MuonReco {
   private:
     TF1*       func;
     TF1*       der;
-    TH1D*      cumul;
+    TH1F*      cumul;
 
     TubeMap<double> t0;
     TubeMap<double> tF;

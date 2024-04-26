@@ -1,5 +1,9 @@
 #include "MuonReco/RTParam.h"
 
+// TODO: DEBUG
+#include <iostream>
+using namespace std;
+
 namespace MuonReco {
 
   RTParam::RTParam() : Optimizer(), Parameterization(npar+1) {
@@ -109,26 +113,24 @@ namespace MuonReco {
     SyncTF1ToParam();
   }
 
-  void RTParam::Initialize(TString t0path, TString decodedDataPath) {
+  void RTParam::Initialize(TString t0path, Plots &plots) {
     _t0path = t0path;
 
     // clear the information in t0 and tF
     for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
       for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
-	t0.set(layer, column, 0);
-	if (isMC)
-	  tF.set(layer, column, 188.688);
-	else
-	  tF.set(layer, column, 0);
+	     t0.set(layer, column, 0);
+	     if (isMC)
+	       tF.set(layer, column, 188.688);
+	     else
+	       tF.set(layer, column, 0);
       }
     }
 
-    TString fitVecName, histName;
-
-    TFile driftFile(decodedDataPath);
+    TString fitVecName;
     
-    TH1D     *driftTimes = new TH1D("driftTimes", "", 1024, -1,1);
-    TH1D     *tempHist;
+    TH1F     *driftTimes = new TH1F("driftTimes", "", 1024, -1,1);
+    TH1F     *tempHist;
     
     if (!isMC) {
       T0Reader* t0Reader = T0Reader::GetInstance(t0path);
@@ -138,27 +140,30 @@ namespace MuonReco {
       t0Reader->SetBranchAddresses(&tdc_id, &ch_id, &layer, &column, fitParams);
 
       for (int iEntry = 0; iEntry < t0Reader->GetEntries(); iEntry++) {
-	t0Reader->GetEntry(iEntry);
+	     t0Reader->GetEntry(iEntry);
 
-	if (ch_id < 0) continue;
+	     if (ch_id < 0) continue;
 
-	t0.set(layer, column, (*fitParams)[T0Fit::T0_INDX]);// - 10;
-	tF.set(layer, column, (*fitParams)[T0Fit::MAX_DRIFT_INDX]);// + 20;
+	     t0.set(layer, column, (*fitParams)[T0Fit::T0_INDX]);// - 10;
+	     tF.set(layer, column, (*fitParams)[T0Fit::MAX_DRIFT_INDX]);// + 20;
+
+       tempHist = plots.p_tdc_time_corrected[tdc_id][ch_id];
 	
-	histName.Form("TDC_%02d_of_%02d_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum_corrected", 
+       /*
+	     histName.Form("TDC_%02d_of_%02d_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum_corrected", 
 		      tdc_id, Geometry::MAX_TDC, tdc_id, ch_id);
-	tempHist = (TH1D*) driftFile.Get(histName);
-	
-	for (int b = 0; b <= tempHist->GetNbinsX(); b++) {
-	  driftTimes->Fill(NormalizedTime(tempHist->GetBinCenter(b), layer, column), tempHist->GetBinContent(b));
-	}
+	     tempHist = (TH1D*) driftFile.Get(histName);
+       */
+	     for (int b = 0; b <= tempHist->GetNbinsX(); b++) {
+	       driftTimes->Fill(NormalizedTime(tempHist->GetBinCenter(b), layer, column), tempHist->GetBinContent(b));
+	     }
       }// end for: entries in t0Reader
       delete fitParams;
     }
 
-
     Initialize();
-    cumul = (TH1D*)driftTimes->GetCumulative();
+
+    cumul = (TH1F*)driftTimes->GetCumulative();
     double maxBC = cumul->GetBinContent(cumul->GetNbinsX());
     
     for (int b = 0; b <= cumul->GetNbinsX(); b++) {
@@ -170,22 +175,25 @@ namespace MuonReco {
     cumul->GetXaxis()->SetTitle("Drift time (ns)");
     cumul->GetYaxis()->SetTitle("Drift radius (mm)");
     cumul->SetTitle("RT function Initial guess");
-    cumul->Fit(func);
+    /*
+    cumul->Fit(func, "Q");
     // make sure f(-1)=0
     func->SetParameter(0, func->GetParameter(0) - func->Eval(-1));
+    */
+    /*
     cumul->Draw();
     func->SetLineColor(kRed);
     func->Draw("same");
     gPad->Modified();
     gPad->Update();
     func->Print();
+    */
 
-    SyncParamToTF1();    
+    SyncParamToTF1();  
 
-    Print();
-    std::cout << "F(-1): " << func->Eval(-1) << std::endl;
+    // Print();
+    // std::cout << "F(-1): " << func->Eval(-1) << std::endl;
 
-    driftFile.Close();
   }
 
   

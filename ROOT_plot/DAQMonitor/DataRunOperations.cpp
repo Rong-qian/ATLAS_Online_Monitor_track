@@ -201,11 +201,20 @@ void DataRun::startRun() {
 
     try{
 
+        // TODO: Consider moving some of this into the DAQData constructor
         data.geo.Configure(cp.items("Geometry"));
+
         data.tc = TimeCorrection(cp);
         // data.tc.Read();
+
         data.recoUtil = RecoUtility(cp.items("RecoUtility"));
+
         data.rtp = RTParam(cp);
+        data.rtp.Initialize("../conf/T0.root", data.plots);
+        TFile autocal("../conf/autocalibration/autoCalibratedRT_0_100000.root");
+        data.rtp.Load(&autocal);
+
+        data.eventDisplay.SetRT(&data.rtp);
 
     } catch(int e) {
 
