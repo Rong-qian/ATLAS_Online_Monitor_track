@@ -9,20 +9,20 @@ namespace MuonReco {
   class Track : public RecoObject {
   public:
     Track();
-    Track(double _slope, double _y_int, bool _ori = false);
+    Track(double _theta, double _x_int, bool _ori = false);
 
-    double Slope   ();
-    double YInt    ();
+    double Theta   ();
+    double XInt    ();
     bool Orientation();
     double Distance(double x, double y);
-    void     SetSlope(double _slope);
-    void     SetYInt (double _y_int);
+    void     SetTheta(double _theta);
+    void     SetXInt (double _x_int);
     void     SetOrientation (bool _ori);
 
     void     Draw    () override;
 
   private:
-    double slope, y_int;
+    double theta, x_int;
     bool ori;
   };
 }

@@ -88,8 +88,33 @@ namespace MuonReco {
     // draw this event using the highest level avaliable reconstructed objects
     if (e.Tracks().size() != 0) {
       for (Track t : e.Tracks()) {
-        // FIXME: Vertical line problem with y intercept and tangent
-        track_model.push_back(new TLine(t.YInt()/t.Slope(), 0, (t.YInt()-350)/t.Slope(),350));
+
+        // We do some work here to make sure that the line goes beyond the
+        // bounds of the screen.
+
+        double x_1 = t.XInt();
+        double y_1 = 0;
+
+        // TODO: Base the bounds on geometry size. Column distance/layer distance?
+        while((x_1 < 1500 && x_1 > -500) || (y_1 < 350 && y_1 > -50)) {
+
+          x_1 += 500 * TMath::Sin(t.Theta());
+          y_1 -= 500 * TMath::Cos(t.Theta());
+
+        }
+
+        double x_2 = t.XInt();
+        double y_2 = 0;
+
+        while((x_2 < 1500 && x_2 > -500) || (y_2 < 350 && y_2 > -50)) {
+
+          x_2 -= 500 * TMath::Sin(t.Theta());
+          y_2 += 500 * TMath::Cos(t.Theta());
+
+        }
+
+        track_model.push_back(new TLine(x_1, y_1, x_2, y_2));
+        // track_model.push_back(new TLine(t.YInt()/t.Slope(), 0, (t.YInt()-350)/t.Slope(),350));
         track_model.at(track_model.size()-1)->SetLineWidth(1);
         track_model.at(track_model.size()-1)->SetLineColor(kBlack);
         if (t.Orientation()) {

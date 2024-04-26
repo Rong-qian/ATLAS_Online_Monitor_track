@@ -130,14 +130,14 @@ namespace MuonReco {
       }
       // do fitting
       double fitSlope, fitInt;
-      chiSq = LeastSquares(xtrial, y, r, &fitSlope, &fitInt);
+      chiSq = LeastSquares(y, xtrial, r, &fitSlope, &fitInt);
       if (chiSq < bestChiSq) {
         bestChiSq        = chiSq;
-        param[THETA]     = -1.0*TMath::ATan(1.0/fitSlope);
-        param[INTERCEPT] = -1.0*fitInt/fitSlope;
+        param[THETA]     = -1.0*TMath::ATan(fitSlope);
+        param[INTERCEPT] = fitInt;
       }
     }
-    
+
     param[DELTAT0] = 0;
     initialAngle[0] = getVerticalAngle()[0];    
     Print();
@@ -189,10 +189,8 @@ namespace MuonReco {
   }
 
   std::vector<Track> TrackParam::makeTracks() {
-    double slope = -1.0*TMath::Tan(TMath::Pi()/2 + param[THETA]);
-    double y_int = slope*param[INTERCEPT];
     std::vector<Track> tracks;
-    tracks.push_back(Track(slope, y_int));
+    tracks.push_back(Track(param[THETA], param[INTERCEPT]));
     return tracks;
   }
  
