@@ -132,7 +132,16 @@
 
 -------------------------------------------------------------------------------
 
+## 2024-04-26
+
+-------------------------------------------------------------------------------
+
 ## 2024-04-25
+
+## Summary
+
+- Bugfixes for GUI side of the Event Display.
+- Still searching for the issue with Event Display tracks.
 
 ## Added
 

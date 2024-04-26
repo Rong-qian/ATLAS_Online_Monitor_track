@@ -1,15 +1,30 @@
 #include "MuonReco/TrackParam.h"
 
+#include <cmath>
+
+// TODO: DEBUG
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+double mean(const vector<double> &vals);
+double stdev(const vector<double> &vals);
+double covariance(const vector<double> &x, const vector<double> &y);
+
 namespace MuonReco {
 
   TrackParam::TrackParam() : AbstractTrackParam(), Parameterization(3) {
     param[THETA]      = 0;
     param[INTERCEPT]  = 1;
     param[DELTAT0]    = 0;
+    vertAng = 0;
+    xInt = 0;
     initialAngle.push_back(0);
   }
 
   TrackParam::~TrackParam() {
+
   }
   
   void TrackParam::SetRT(Callable* rtp) {
@@ -96,71 +111,86 @@ namespace MuonReco {
 
 
   void TrackParam::Initialize(Event* e) {
+
     // create lists of doubles to hold x, y, radius
     std::vector<double> x, y, r;
     double hitX, hitY;
     int npts = 0;
-    for (Cluster c : e->Clusters()) {
-      for (Hit h : c.Hits()) {
-	hitX = h.X();
-	hitY = h.Y();
 
-	x.push_back(hitX);
-	y.push_back(hitY);
-	r.push_back(rtfunction->Eval(h));
-	npts++;
+    for (Cluster c : e->Clusters()) {
+
+      for (Hit h : c.Hits()) {
+
+	     hitX = h.X();
+	     hitY = h.Y();
+
+	     x.push_back(hitX);
+	     y.push_back(hitY);
+	     r.push_back(rtfunction->Eval(h));
+	     npts++;
+
       }      
+
     }
 
     // keep track of n pts
     // iterate over 2^n tries, doing a fit each time
+    /*
     double bestChiSq = DBL_MAX;
     double chiSq;
     for (int bitmap = 0; bitmap < 1<<npts; bitmap++) {
+
       // declare containers
       std::vector<double> xtrial = std::vector<double>(x.size());
       for (int i = 0; i < npts; i++) {
-	if (bitmap & 1<<i) {
-	  // here the ith hit should be R
-	  xtrial[i] = x[i] + r[i];
-	}
-	else {
-	  // here the th hit should be L
-	  xtrial[i] = x[i] - r[i];
-	}
+
+	     if (bitmap & 1<<i) {
+	       // here the ith hit should be R
+	       xtrial[i] = x[i] + r[i];
+	     }
+	     else {
+	       // here the th hit should be L
+	       xtrial[i] = x[i] - r[i];
+	     }
+
       }
+
       // do fitting
       double fitSlope, fitInt;
       chiSq = LeastSquares(xtrial, y, r, &fitSlope, &fitInt);
       if (chiSq < bestChiSq) {
-	bestChiSq        = chiSq;
-	param[THETA]     = -1.0*TMath::ATan(1.0/fitSlope);
-	param[INTERCEPT] = -1.0*fitInt/fitSlope;
+	     bestChiSq        = chiSq;
+	     param[THETA]     = -1.0*TMath::ATan(1.0/fitSlope);
+	     param[INTERCEPT] = -1.0*fitInt/fitSlope;
+
       }
+
     }
+    */
+
+    double fitSlope, fitInt;
+    LeastSquares(y, x, r, &fitSlope, &fitInt);
+    param[THETA]     = -1.0*TMath::ATan(fitSlope);
+    param[INTERCEPT] = fitInt;
+
+    vertAng = -1.0*TMath::ATan(fitSlope);
+    xInt = fitInt;
+
     param[DELTAT0] = 0;
     initialAngle[0] = getVerticalAngle()[0];    
     Print();
+
   }
 
   double TrackParam::LeastSquares(std::vector<double> x, std::vector<double> y, std::vector<double> r, double* slopeOut, double* intOut) {
-    double xmean = 0.0;
-    double ymean = 0.0;
-    for (int i = 0; i < x.size(); i++) {
-      xmean += x.at(i);
-      ymean += y.at(i);
-    }
-    xmean /= x.size();
-    ymean /= y.size();
-    
-    double cov = 0.0;
-    double var = 0.0;
-    for (int i = 0; i < x.size(); i++) {
-      cov += (x[i]-xmean)*(y[i]-ymean);
-      var += (x[i]-xmean)*(x[i]-xmean);
-    }
 
-    *slopeOut = cov/var;
+    double xmean  = mean(x);
+    double ymean  = mean(y);
+
+    double cov    = covariance(x, y);
+    double stdevx = stdev(x);
+
+    *slopeOut = cov / (stdevx * stdevx);
     *intOut   = ymean - (*slopeOut)*xmean;
     
     double chiSq = 0.0;
@@ -172,9 +202,10 @@ namespace MuonReco {
     return chiSq;
   }
 
-  double TrackParam::theta() {
+  double TrackParam::vertical_angle() {
 
-    return param[THETA];
+    // return param[THETA];
+    return vertAng;
 
   }
 
@@ -184,9 +215,10 @@ namespace MuonReco {
 
   }
 
-  double TrackParam::y_int() {
+  double TrackParam::x_int() {
 
-    return param[TrackParam::INTERCEPT];
+    // return param[TrackParam::INTERCEPT];
+    return xInt;
 
   }
 
@@ -207,10 +239,8 @@ namespace MuonReco {
   }
 
   std::vector<Track> TrackParam::makeTracks() {
-    double slope = -1.0*TMath::Tan(TMath::Pi()/2 + param[THETA]);
-    double y_int = slope*param[INTERCEPT];
     std::vector<Track> tracks;
-    tracks.push_back(Track(slope, y_int));
+    tracks.push_back(Track(param[THETA], param[INTERCEPT]));
     return tracks;
   }
  
@@ -243,4 +273,56 @@ namespace MuonReco {
       *systerror = 1.0;
     }
   }
+}
+
+double mean(const vector<double> &vals) {
+
+  double sum = 0.;
+
+  for(double val : vals) {
+
+    sum += val;
+
+  }
+
+  return (sum / static_cast<double>(vals.size()));
+
+}
+
+double stdev(const vector<double> &vals) {
+
+  if(vals.size() < 2) return 0.;
+
+  double valMean = mean(vals);
+  double sumMeanSquares = 0.;
+
+  for(double val : vals) {
+
+    sumMeanSquares += (val - valMean)*(val - valMean);
+
+  }
+
+  return sqrt(sumMeanSquares / (vals.size() - 1));
+
+}
+
+double covariance(const vector<double> &x, const vector<double> &y) {
+
+  if(x.size() != y.size()) return 0.;
+
+  if(x.size() < 2) return 0.;
+
+  double meanX = mean(x);
+  double meanY = mean(y);
+
+  double sumMeanSquares = 0.;
+
+  for(int i = 0; i < x.size(); ++i) {
+
+    sumMeanSquares += (x[i] - meanX) * (y[i] - meanY);
+
+  }
+
+  return sumMeanSquares / (x.size() - 1);
+
 }

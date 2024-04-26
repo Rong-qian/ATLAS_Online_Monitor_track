@@ -50,8 +50,8 @@ namespace MuonReco {
     std::vector<double> getImpactParameter()                 override;
 
     double slope();
-    double theta();
-    double y_int();
+    double vertical_angle();
+    double x_int();
 
     void tracksystematics(TString systname, int * systindex, double * systerror, double * maxshift, TString & rrsystname, double * systsf, Bool_t floatup) override;
 
@@ -66,6 +66,10 @@ namespace MuonReco {
     static const int SLEWFACTOR    = 3;
     static const int SIGPROPFACTOR = 4;
     static const int NPARS         = 3;
+
+    // TODO: DEBUG
+    double vertAng;
+    double xInt;
 
   };
 

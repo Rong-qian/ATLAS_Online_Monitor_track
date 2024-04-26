@@ -26,6 +26,9 @@ include(${ROOT_USE_FILE})
 include_directories(${ROOT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 link_directories(${ROOT_LIBRARY_DIR})
 
+# Include CTest for testing
+include(CTest)
+
 ###############################################################################
 
 set(recoObjs_HEADERS
@@ -257,6 +260,12 @@ target_link_libraries(p2decode PUBLIC libP2Decode)
 
 add_executable(DAQManager StartDAQ.cpp)
 target_link_libraries(DAQManager PUBLIC libMonitor)
+
+###############################################################################
+
+add_executable(testTrackParam Tests/testTrackParam.cpp)
+target_link_libraries(testTrackParam PUBLIC p2MuonReco)
+add_test(NAME testTrackParam COMMAND testTrackParam)
 
 ###############################################################################
 

@@ -1,5 +1,9 @@
 #include "EventDisplay.h"
 
+// TODO: DEBUG
+#include <iostream>
+using namespace std;
+
 namespace MuonReco {
 
   EventDisplay::EventDisplay() {
@@ -11,10 +15,24 @@ namespace MuonReco {
 
   void EventDisplay::Clear() {
 
+    for(TEllipse *hit : hit_model) {
+      delete hit;
+    }
+    hit_model.clear();
+
+    for(TLine *track : track_model) {
+      delete track;
+    }
+    track_model.clear();
+
     for (auto it = boxes.begin(); it != boxes.end(); ++it) {
       delete (*it);
     }
     boxes = std::vector<TBox*>();
+
+    hit_model_orientation  .clear();
+    track_model_orientation.clear();
+
   }
   
   void EventDisplay::Divide(TCanvas *eCanv, int nX, int nY) {
@@ -46,27 +64,8 @@ namespace MuonReco {
     bool isphase2data
   ) {
 
-    // If the canvas is updated after hit_model and track_model are cleared,
-    // the canvas will not draw hits and tracks, no matter when the draw()
-    // call was made. So we need hit_model and track_model to be persistent.
-    // But we also need them to be in a clear state at the beginning of the
-    // draw call to avoid repeats, so we reset them at the beginning of the
-    // draw.
-    for(TEllipse *hit : hit_model) {
-      delete hit;
-    }
-    hit_model.clear();
-
-    for(TLine *track : track_model) {
-      delete track;
-    }
-    track_model.clear();
-
     double hit_x, hit_y;
     int hit_l, hit_c;
-
-    std::vector<bool>      hit_model_orientation;
-    std::vector<bool>      track_model_orientation;
 
     // draw the background geometry
     
@@ -94,9 +93,11 @@ namespace MuonReco {
     if (e.Tracks().size() != 0) {
       for (Track t : e.Tracks()) {
         // FIXME: Vertical line problem with y intercept and tangent
+        cout << "Fit: (" << t.XInt() << ", " << t.Theta() << ")" << endl;
         track_model.push_back(
           new TLine(
-            0, t.YInt(), 1000, -1000 * TMath::Tan(t.Theta()) + t.YInt()
+            t.XInt(), 0, 
+            t.XInt() - 1000 * TMath::Sin(t.Theta()), 1000 * TMath::Cos(t.Theta())
           ));
         track_model.at(track_model.size()-1)->SetLineWidth(1);
         track_model.at(track_model.size()-1)->SetLineColor(kBlack);
@@ -127,6 +128,8 @@ namespace MuonReco {
           hit_x = h.X();
           hit_y = h.Y();
           hit_model_orientation.push_back(geo.IsPerpendicular(h.Layer()));
+
+          cout << "(" << hit_x << ", " << hit_y << ")" << endl;
       
           if (rtfunction != 0) {
             hit_model.push_back(new TEllipse(hit_x, hit_y, rtfunction->Eval(h), rtfunction->Eval(h)));

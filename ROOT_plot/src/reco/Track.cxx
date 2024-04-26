@@ -3,13 +3,13 @@
 namespace MuonReco {
   Track::Track() {
     theta = 0; 
-    y_int = 0;
+    x_int = 0;
     ori = false;
   }
 
-  Track::Track(double _theta, double _y_int, bool _ori)
+  Track::Track(double _theta, double _x_int, bool _ori)
     : theta(_theta),
-      y_int(_y_int),
+      x_int(_x_int),
       ori(_ori) {}
 
   double Track::Theta() {
@@ -18,8 +18,8 @@ namespace MuonReco {
 
   }
   
-  double Track::YInt() {
-    return y_int;
+  double Track::XInt() {
+    return x_int;
   }
 
   bool Track::Orientation() {
@@ -32,8 +32,8 @@ namespace MuonReco {
 
   }
   
-  void Track::SetYInt(double _y_int) {
-    y_int = _y_int;
+  void Track::SetXInt(double _x_int) {
+    x_int = _x_int;
   }
 
   void Track::SetOrientation(bool _ori) {
@@ -42,7 +42,7 @@ namespace MuonReco {
 
   double Track::Distance(double x, double y) {
 
-    return TMath::Abs(x * TMath::Sin(theta) + (y_int - y) * TMath::Cos(theta));
+    return TMath::Abs(x * TMath::Sin(theta) + (x_int - y) * TMath::Cos(theta));
   }
 
   void Track::Draw() {    

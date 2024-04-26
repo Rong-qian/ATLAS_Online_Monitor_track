@@ -89,8 +89,10 @@ bool EventTab::showCurrentEvent() {
 
 	DAQData &data = DAQData::getInstance();
 
+	// Lock data to avoid race conditions
 	data.lock();
 
+	// If currentEventIndex is out of bounds, just stop
 	if(currentEventIndex >= data.plots.eventDisplayBuffer.size()) {
 
 		data.unlock();
@@ -99,12 +101,21 @@ bool EventTab::showCurrentEvent() {
 
 	}
 
+	// Copy the size and event while we're sure data isn't getting modified
 	Event e = data.plots.eventDisplayBuffer[currentEventIndex];
 	size_t size = data.plots.eventDisplayBuffer.size();
 
+	// Release data before the draw to avoid slow operations in the critical
+	// section. We've already gotten local copies of the members we need.
 	data.unlock();
 
+	// Clear the canvas
 	GetCanvas()->Clear();
+
+	// Clear the last draw's hits and tracks
+	data.eventDisplay.Clear(); 
+
+	// Draw the event
 	data.eventDisplay.DrawEvent(
 		GetCanvas(),
 		e,
@@ -113,6 +124,7 @@ bool EventTab::showCurrentEvent() {
 		true
 	);
 
+	// Update the interface around the canvas
 	updateLabel(size);
 	resetButtonStates(size);
 

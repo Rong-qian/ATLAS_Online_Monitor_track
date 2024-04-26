@@ -498,7 +498,7 @@ void Plots::binEvent(Event &e) {
 
 		// TODO: It would be nice if the eventDisplayBuffer could be in 
 		//       DAQData.
-		e.AddTrack(Track(tp.theta(), tp.y_int()));
+		e.AddTrack(Track(tp.vertical_angle(), tp.x_int()));
 		eventDisplayBuffer.push_back(e);
 
 	}
