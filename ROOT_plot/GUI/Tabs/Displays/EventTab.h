@@ -27,6 +27,8 @@ public:
 
 	virtual void update() override;
 
+	virtual void showFirstEvent   ();
+	virtual void showLastEvent    ();
 	virtual void showNextEvent    ();
 	virtual void showPreviousEvent();
 	virtual void stopAutoplay     ();
@@ -39,9 +41,11 @@ private:
 
 		TGLabel      *eventNum   ;
 
+		TGTextButton *begButton  ;
 		TGTextButton *leftButton ;
 		TGTextButton *autoDisplay;
 		TGTextButton *rightButton;
+		TGTextButton *endButton  ;
 
 
 	virtual void resetButtonStates(size_t size);

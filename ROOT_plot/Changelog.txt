@@ -139,6 +139,10 @@
 - Working on cleaning up event display tracks. Tracked the issue to failure to
   properly initialize an RTParam. Working on the RTParam.
 
+## Added
+
+- Added beginning and end buttons to EventTab.
+
 ## Changed
 
 - Extensive changes to RTParam.cxx.

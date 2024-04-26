@@ -19,6 +19,9 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 		eventNum = new TGLabel(buttonFrame, "No events to display!");
 		buttonFrame->AddFrame(eventNum, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
 
+		endButton = new TGTextButton(buttonFrame, "->|");
+		buttonFrame->AddFrame(endButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
+
 		rightButton = new TGTextButton(buttonFrame, "-->");
 		buttonFrame->AddFrame(rightButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
@@ -28,8 +31,13 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 		leftButton = new TGTextButton(buttonFrame, "<--");
 		buttonFrame->AddFrame(leftButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
+		begButton = new TGTextButton(buttonFrame, "|<-");
+		buttonFrame->AddFrame(begButton, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
+
+	begButton  ->SetEnabled(false);
 	rightButton->SetEnabled(false);
-	leftButton->SetEnabled(false);
+	leftButton ->SetEnabled(false);
+	endButton  ->SetEnabled(false);
 
 	// TODO: Weird behavior when opened after a run has started.
 
@@ -41,6 +49,9 @@ EventTab::EventTab(const TGWindow *p, int width, int height)
 
 void EventTab::makeConnections() {
 
+	begButton  ->Connect("Clicked()", "EventTab", this, "stopAutoplay()"     );
+	begButton  ->Connect("Clicked()", "EventTab", this, "showFirstEvent()"   );
+
 	leftButton ->Connect("Clicked()", "EventTab", this, "stopAutoplay()"     );
 	leftButton ->Connect("Clicked()", "EventTab", this, "showPreviousEvent()");
 
@@ -48,6 +59,9 @@ void EventTab::makeConnections() {
 	rightButton->Connect("Clicked()", "EventTab", this, "showNextEvent()"    );
 
 	autoDisplay->Connect("Clicked()", "EventTab", this, "toggleAutoplay()"   );
+
+	endButton  ->Connect("Clicked()", "EventTab", this, "stopAutoplay()"     );
+	endButton  ->Connect("Clicked()", "EventTab", this, "showLastEvent()"    );
 
 }
 
@@ -91,6 +105,14 @@ bool EventTab::showCurrentEvent() {
 
 	// Lock data to avoid race conditions
 	data.lock();
+
+	if(data.eventDisplayBuffer.empty()) {
+
+		data.unlock();
+
+		return false;
+
+	}
 
 	// If currentEventIndex is out of bounds, just stop
 	if(currentEventIndex >= data.eventDisplayBuffer.size()) {
@@ -147,6 +169,35 @@ void EventTab::showPreviousEvent() {
 	--currentEventIndex;
 
 	showCurrentEvent();
+
+}
+
+void EventTab::showFirstEvent() {
+
+	currentEventIndex = 0;
+
+	showCurrentEvent();
+
+}
+
+void EventTab::showLastEvent() {
+
+	DAQData &data = DAQData::getInstance();
+
+	data.lock();
+
+	if(data.eventDisplayBuffer.empty()) {
+
+		data.unlock();
+		return;
+
+	}
+	currentEventIndex = data.eventDisplayBuffer.size() - 1;
+
+	data.unlock();
+
+	showCurrentEvent();
+
 
 }
 
@@ -218,15 +269,19 @@ void EventTab::resetButtonStates(size_t size) {
 	data.lock();
 	if(currentEventIndex > 0) {
 		leftButton->SetEnabled(true);
+		begButton ->SetEnabled(true);
 	}
 	if(currentEventIndex + 1 < size) {
 		rightButton->SetEnabled(true);
+		endButton  ->SetEnabled(true);
 	}
 	if(currentEventIndex < 1) {
 		leftButton->SetEnabled(false);
+		begButton ->SetEnabled(false);
 	}
 	if(currentEventIndex + 2 > size) {
 		rightButton->SetEnabled(false);
+		endButton  ->SetEnabled(false);
 	}
 	data.unlock();
 
