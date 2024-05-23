@@ -47,7 +47,7 @@ struct DAQData {
     MuonReco::TimeCorrection tc      ;
     MuonReco::RecoUtility    recoUtil;
     MuonReco::RTParam        rtp     ;
-
+    MuonReco::RecoUtility    ru      ;
     MuonReco::EventDisplay   eventDisplay;
 
     int totalEventCount = 0;
@@ -74,6 +74,13 @@ struct DAQData {
 
     void binEvent     (MuonReco::Event &e  );
     void updateHitRate(int total_events    );
+
+    /**
+ *  For event check
+    **/  
+
+    bool pass_event_check;
+    int status;
 
     /**
      * Clears all data stored in the DAQData. Clear is called at the

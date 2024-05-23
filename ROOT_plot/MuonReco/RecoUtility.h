@@ -48,7 +48,7 @@ namespace MuonReco {
     int  DoHitFindingPhase2(Event *e, TimeCorrection* tc, Geometry& geo, double adc_cut, int relative);
     int  rollover_bindiff_cal(int a, int b, int rollover);
     bool IsPhase2Data();
-
+    void ResetDefaultChecking();
   private:
     bool    CHECK_TRIGGERS;
     bool    IS_PHASE2_DATA;

@@ -144,10 +144,21 @@ void DAQData::binEvent(Event &e) {
     // Residuals, efficiency, and event display modified from work by 
     // Rongqian Qian. See:
     // https://github.com/Rong-qian/ATLAS_Online_Monitor/
-    if(e.Pass()) {
-
-        // TODO: Shouldn't this object be persistent?
-        //         -- It isn't in the legacy DAQ.cpp though
+    
+    //Create RecoUtility which has a tighter selection on reconstructed event by some default value
+    //TODO: You can change the selection in ResetDefaultChecking but modify the config is better
+    ru = recoUtil;
+    ru.ResetDefaultChecking();
+    pass_event_check = ru.CheckEvent(e,&status);
+    //pass_event_check = recoUtil.CheckEvent(e,&status);//very loose selection
+    for (Hit &hit : e.WireHits()){
+	if (hit.Radius()>Geometry::radius){
+		std::cout<<hit.Radius()<<std::endl;
+		pass_event_check= 0;
+		}
+	}
+    //e.EventPrint(geo);
+    if(pass_event_check) {
         TTree *optTree = new TTree("optTree", "optTree");
 
         optTree->Branch("event", "Event", &e);
@@ -229,7 +240,7 @@ void DAQData::binEvent(Event &e) {
                     double _hitX, _hitY;
 
                     geo.GetHitLayerColumn(tdc_index, ch_index, &iL, &iC);
-                    geo.GetHitXY(tdc_index, ch_index, &_hitX, &_hitY);
+                    geo.GetHitXY(iL, iC, &_hitX, &_hitY);
 
                     // get track x position and figure out what tube(s) it may go through
                     double trackDist = tp.Distance(Hit(
@@ -260,9 +271,8 @@ void DAQData::binEvent(Event &e) {
                             }
 
                         }
-
-                        ++nTotal[iL][iC];
-
+		        ++nTotal[iL][iC];
+			
                         if(tubeIsHit) ++nHits[iL][iC];
 
                     }
@@ -281,8 +291,8 @@ void DAQData::binEvent(Event &e) {
 
                     // FIXME: Make sure the axes are right
                     plots.tube_efficiency->SetBinContent(
-                        iL + 1, 
                         iC + 1, 
+                        iL + 1,
                         nHits[iL][iC] / nTotal[iL][iC]
                     );
 

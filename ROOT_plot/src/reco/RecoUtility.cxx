@@ -140,7 +140,6 @@ namespace MuonReco {
         if (merge) break;
       } // end for: c1
     } // end while: merge
-
     // modify event
     for (auto c : clusters) {
       if (c.Size() >= MIN_CLUSTER_SIZE) {
@@ -263,4 +262,15 @@ namespace MuonReco {
     } //for (auto sig : e->Signals())
     return nhits;
   }
+
+void RecoUtility::ResetDefaultChecking(){
+   MIN_CLUSTER_SIZE=2;
+   MAX_CLUSTER_SIZE=216;
+   MIN_CLUSTERS_PER_ML=1;
+   MAX_CLUSTERS_PER_ML=1;
+   MAX_TIME_DIFFERENCE=400;
+   TRIGGER_OFFSET=0; 
+ }
+
+
 } 
