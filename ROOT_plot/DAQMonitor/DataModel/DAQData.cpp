@@ -317,6 +317,7 @@ void DAQData::binEvent(Event &e) {
         
         if  (num_display_event == max_display_event){
         	eventDisplayBuffer.clear();
+        	eventDisplayBuffer.resize(0);
         	num_display_event = 0;
         }
         
