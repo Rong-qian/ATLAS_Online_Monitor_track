@@ -16,6 +16,9 @@ const double MATCH_WINDOW = 1.5; // us
 // TODO: Consider implementing copy constructor to handle geo better.
 
 DAQData::DAQData() {
+}
+
+void DAQData::Reload() {
 
     nHits .resize(Geometry::MAX_TUBE_LAYER);
     nTotal.resize(Geometry::MAX_TUBE_LAYER);
@@ -26,8 +29,9 @@ DAQData::DAQData() {
         nTotal[i].resize(Geometry::MAX_TUBE_COLUMN);
 
     }
-
+    plots = Plots();
 }
+
 
 DAQData &DAQData::getInstance() {
 
@@ -55,6 +59,8 @@ void DAQData::clear () {
     droppedSignals  = 0;
     droppedEvents   = 0;
 
+    num_display_event = 0;
+
     for(vector<double> &vec : nHits) {
 
         vec.clear();
@@ -77,11 +83,9 @@ bool DAQData::isPopulated() const {
 
 }
 void DAQData::updateHitRate(int total_events) {
-
     for(int tdc = 0; tdc < Geometry::MAX_TDC; ++tdc) {
 
         for(int chnl = 0; chnl < Geometry::MAX_TDC_CHANNEL; ++chnl) {
-
             // Hits / total_events * (1 / MATCH_WINDOW (us)) * 1000 (us / ms)
             plots.p_tdc_hit_rate[tdc][chnl] 
                 = plots.p_adc_time[tdc][chnl]->GetEntries() / total_events 
@@ -93,12 +97,10 @@ void DAQData::updateHitRate(int total_events) {
                 chnl, 
                 plots.p_tdc_hit_rate[tdc][chnl]
             );
-
             double tmp_yrange = plots.p_tdc_hit_rate_graph[tdc]->GetHistogram()->GetMaximum();
             plots.p_tdc_hit_rate_graph[tdc]->GetHistogram()->SetMaximum(tmp_yrange > 0.5 ? tmp_yrange : 1);
             plots.p_tdc_hit_rate_graph[tdc]->GetHistogram()->SetMinimum(0);
             plots.p_tdc_hit_rate_graph[tdc]->GetXaxis()->SetLimits(-0.5, static_cast<double>(Geometry::MAX_TDC_CHANNEL) - 0.5);
-
         }
 
     }
@@ -106,7 +108,6 @@ void DAQData::updateHitRate(int total_events) {
 }
 
 void DAQData::binEvent(Event &e) {
-
     for(const Hit &hit : e.WireHits()) {
 
         plots.p_tdc_tdc_time_corrected[hit.TDC()]->Fill(hit.CorrTime());
@@ -141,6 +142,7 @@ void DAQData::binEvent(Event &e) {
     tp.setVerbose(0);
     tp.setMaxResidual(1000000);
 
+
     // Residuals, efficiency, and event display modified from work by 
     // Rongqian Qian. See:
     // https://github.com/Rong-qian/ATLAS_Online_Monitor/
@@ -163,7 +165,6 @@ void DAQData::binEvent(Event &e) {
 
         optTree->Branch("event", "Event", &e);
         optTree->Fill();
-
         tp.setTarget(optTree);
         tp.setRangeSingle(0);
         tp.setIgnoreNone();
@@ -229,6 +230,7 @@ void DAQData::binEvent(Event &e) {
 
         // Populate efficiency
         // Iterate through each tube via tdc and channel index
+        
         for(int tdc_index = 0; tdc_index < Geometry::MAX_TDC; ++tdc_index) {
 
             for(int ch_index = 0; ch_index < Geometry::MAX_TDC_CHANNEL; ++ch_index) {
@@ -312,8 +314,14 @@ void DAQData::binEvent(Event &e) {
             e.AddTrack(track);
 
         }
+        
+        if  (num_display_event == max_display_event){
+        	eventDisplayBuffer.clear();
+        	num_display_event = 0;
+        }
+        
         eventDisplayBuffer.push_back(e);
+        num_display_event++;
 
     }
-
 }

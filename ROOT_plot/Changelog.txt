@@ -130,6 +130,12 @@
 - Should we be reading/writing the time correction?
 - Some Plot members are not copied in the copy constructor.
 
+## 2024-06-03
+
+- Add configuration for T0 and rt function file to use.
+- Clear the event display buffer every certain event. But this make program not abborted when look for previous plots.
+- Add Reload function in dataset DAQdata to solve the problem of construction of DAQdata create arrays whose size is not in match with run config. But it re-initalize plots which is not good. 
+
 -------------------------------------------------------------------------------
 
 ## 2024-04-26

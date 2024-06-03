@@ -21,7 +21,7 @@ struct Plots {
 	Plots();
 
 	Plots         (const Plots &other);
-	void operator=(const Plots &other) = delete; // TODO: It's a little bit
+	//void operator=(const Plots &other) = delete; // TODO: It's a little bit
 	                                             //       weird to have a
 	                                             //       copy constructor but
 	                                             //       not copy assignment

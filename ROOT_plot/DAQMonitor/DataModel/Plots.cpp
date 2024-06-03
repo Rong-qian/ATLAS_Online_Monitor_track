@@ -64,7 +64,6 @@ Plots::Plots(const Plots &other) {
 }
 
 Plots::Plots() {
-
 	TString plot_name_buffer;
 
 	p_leading_time  = new TH1F("leading time spectrum" , "leading time spectrum", 100, 0, 1000);

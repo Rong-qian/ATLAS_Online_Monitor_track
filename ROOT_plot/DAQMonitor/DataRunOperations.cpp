@@ -203,15 +203,21 @@ void DataRun::startRun() {
 
         // TODO: Consider moving some of this into the DAQData constructor
         data.geo.Configure(cp.items("Geometry"));
-
+	data.Reload();
         data.tc = TimeCorrection(cp);
         // data.tc.Read();
 
         data.recoUtil = RecoUtility(cp.items("RecoUtility"));
 
         data.rtp = RTParam(cp);
-        data.rtp.Initialize("../conf/T0.root", data.plots);
-        TFile autocal("../conf/autocalibration/autoCalibratedRT_0_100000.root");
+        //data.rtp.Initialize("../conf/T0.root", data.plots);
+        //TFile autocal("../conf/autocalibration/autoCalibratedRT_0_100000.root");
+        
+        data.T0Path = cp.items("RecoRTP").getStr("T0Path" , "./conf/T0.root");
+        data.RTPath = cp.items("RecoRTP").getStr("RTPath" , "../conf/autocalibration/autoCalibratedRT_0_100000.root");
+        
+        data.rtp.Initialize(data.T0Path.c_str(), data.plots);
+        TFile autocal(data.RTPath.c_str());
         data.rtp.Load(&autocal);
 
         data.eventDisplay.SetRT(&data.rtp);
@@ -285,7 +291,7 @@ void DataRun::startRun() {
             }
 
         });
-
+	
         // DECODE LOOP
         thread decodeThread([&dataStream, &data, runLabel](){
 

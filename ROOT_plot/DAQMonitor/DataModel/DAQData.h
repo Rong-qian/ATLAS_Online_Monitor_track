@@ -57,7 +57,10 @@ struct DAQData {
 
     int droppedSignals  = 0;
     int droppedEvents   = 0;
-
+    
+    int max_display_event = 1000;
+    int num_display_event = 0;
+    
     /**
      * Checks if the DAQData has any events in it at all.
      * Useful for making empty checks before expecting
@@ -74,7 +77,7 @@ struct DAQData {
 
     void binEvent     (MuonReco::Event &e  );
     void updateHitRate(int total_events    );
-
+    void Reload();
     /**
  *  For event check
     **/  
@@ -95,6 +98,8 @@ struct DAQData {
     // Access the singleton DAQData instance by reference here.
     static DAQData &getInstance();
 
+    std::string T0Path;
+    std::string RTPath;
 private:
 
     DAQData();
