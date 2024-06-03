@@ -4,6 +4,6 @@
 
 # Use these paths when we want to use GDB. GDB expects a different python
 # version.
-export PATH=/usr/ROOT/bin:/home/rpm/gcc-6.2.0/gcc-build/bin:/bin/python:$PATH
+export PATH=/usr/ROOT/bin:/home/rpm/gcc-6.2.0/gcc-build/bin:/bin/python:$PATH:/home/rqian/mdt/libpcap/install/bin
 export LD_LIBRARY_PATH=/home/rpm/gcc-6.2.0/gcc-build/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bin/python
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bin/python:/home/rqian/mdt/libpcap/install/lib

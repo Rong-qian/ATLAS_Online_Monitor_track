@@ -16,6 +16,7 @@
 #include "TApplication.h"
 #include "TUnixSystem.h"
 #include "TString.h"
+#include "TROOT.h"
 
 #include "src/Decoder.h"
 

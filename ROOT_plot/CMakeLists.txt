@@ -19,6 +19,7 @@ find_package(PCAP REQUIRED)
 
 message(ROOT\ include\ directory:\ ${ROOT_INCLUDE_DIRS})
 include_directories(${ROOT_INCLUDE_DIRS})
+include_directories(${PCAP_INCLUDE_DIR})
 
 
 #---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)

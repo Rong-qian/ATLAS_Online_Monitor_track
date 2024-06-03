@@ -21,6 +21,8 @@
 #                            library e.g. required by pf_ring's libpcap)
 #  HAVE_PF_RING              If a found version of libpcap supports PF_RING
 
+set(PCAP_ROOT_DIR "/home/rqian/mdt/libpcap/install")
+
 find_path(PCAP_ROOT_DIR
     NAMES include/pcap.h Include/pcap.h
 )
