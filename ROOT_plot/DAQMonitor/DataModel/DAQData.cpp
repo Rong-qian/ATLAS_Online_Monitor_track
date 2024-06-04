@@ -46,13 +46,14 @@ void DAQData::unlock() const { dataLock.unlock(); }
 
 void DAQData::clear () {
 
-    processedEvents.clear();
     plots.clear();
     eventDisplay.Clear();
-    eventDisplayBuffer.clear();
 
-    totalEventCount = 0;
-    packetCount     = 0;
+
+    totalEventCount    = 0;
+    nonemptyEventCount = 0;
+    packetCount        = 0;
+
 
     lostPackets     = 0;
 
@@ -316,13 +317,13 @@ void DAQData::binEvent(Event &e) {
         }
         
         if  (num_display_event == max_display_event){
-        	eventDisplayBuffer.clear();
-        	eventDisplayBuffer.resize(0);
-        	num_display_event = 0;
+        	eventDisplayBuffer.pop_front();
+        	eventDisplayBuffer.push_back(e);
         }
-        
-        eventDisplayBuffer.push_back(e);
-        num_display_event++;
-
+        else{
+                eventDisplayBuffer.push_back(e);
+        	num_display_event++;
+        }
+        //std::cout<<"size of ed buffer"<<(eventDisplayBuffer.size())<<std::endl;
     }
 }

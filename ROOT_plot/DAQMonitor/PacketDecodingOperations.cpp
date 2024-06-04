@@ -63,7 +63,7 @@ void Decode::startDecoding(
     UISignalBus::getInstance().onUpdate();
     UI::UILock.unlock();
 
-    Decoder decoder(300000);
+    Decoder decoder(3000);
 
     /////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ void Decode::startDecoding(
          << endl;
 
     cout << "Processed " 
-         << data.processedEvents.size() 
+         << data.nonemptyEventCount 
          << " nonempty events." 
          << endl;
     data.unlock();
@@ -217,25 +217,21 @@ void Decode::startDecoding(
 
 void aggregateEventData(const DecodeData &loopData, DAQData &data) {
 
-    data.totalEventCount += loopData.eventCount    ;
+    data.totalEventCount += loopData.eventCount;
+    data.nonemptyEventCount += loopData.nonemptyEvents.size();
 
     data.droppedSignals  += loopData.droppedSignals;
     data.droppedEvents   += loopData.droppedEvents ;
 
     data.newEvents = loopData.nonemptyEvents;
 
-    data.processedEvents.insert(
-        data.processedEvents.end(), 
-        data.newEvents.cbegin  (), 
-        data.newEvents.cend    ()
-    );
 
     for(Event &e : data.newEvents) {
 
         data.binEvent(e);
         
     }
-
+    std::cout<<"size of data"<<sizeof(data)<<std::endl;
     data.updateHitRate(data.totalEventCount);
 
 }

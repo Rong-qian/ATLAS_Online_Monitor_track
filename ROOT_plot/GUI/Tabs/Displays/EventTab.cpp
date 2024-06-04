@@ -124,7 +124,10 @@ bool EventTab::showCurrentEvent() {
 	}
 
 	// Copy the size and event while we're sure data isn't getting modified
-	Event e = data.eventDisplayBuffer[currentEventIndex];
+	//Event e = data.eventDisplayBuffer[currentEventIndex];
+	Event e = data.eventDisplayBuffer.at(currentEventIndex);
+
+	
 	size_t size = data.eventDisplayBuffer.size();
 
 	// Release data before the draw to avoid slow operations in the critical

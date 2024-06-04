@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <mutex>
+#include <deque>
 
 #include "Plots.h"
 
@@ -28,17 +29,15 @@
 
 struct DAQData {
 
-    // A vector of fully processed and populated events, with hit finding
-    // already performed. Excludes empty events.
-    std::vector<MuonReco::Event> processedEvents;
-
     // A vector of the fully processed and populated events decoded in the
     // last decode iteration, with hit finding already performed.
     // Excludes empty events.
     std::vector<MuonReco::Event> newEvents;
 
-    std::vector<MuonReco::Event> eventDisplayBuffer;
-
+    //std::vector<MuonReco::Event> eventDisplayBuffer;
+    
+    std::deque<MuonReco::Event> eventDisplayBuffer;
+    
     // A struct of histograms containing aggregate event data. See
     // src/DataModel/Plots.cpp.
     Plots plots;
@@ -50,15 +49,16 @@ struct DAQData {
     MuonReco::RecoUtility    ru      ;
     MuonReco::EventDisplay   eventDisplay;
 
-    int totalEventCount = 0;
-    int packetCount     = 0;
+    int totalEventCount    = 0;
+    int nonemptyEventCount = 0;
+    int packetCount        = 0;
 
     int lostPackets     = 0;
 
     int droppedSignals  = 0;
     int droppedEvents   = 0;
     
-    int max_display_event = 1000;
+    int max_display_event = 10000;
     int num_display_event = 0;
     
     /**
