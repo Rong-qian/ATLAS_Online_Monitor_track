@@ -239,7 +239,7 @@ Plots::Plots() {
 
 	tube_efficiency = new TH2D(
 		"Tube Efficiency",
-		";Column;Layer",
+		";Tube;Layer",
 		Geometry::MAX_TUBE_COLUMN, -0.5, Geometry::MAX_TUBE_COLUMN - 0.5,
 		Geometry::MAX_TUBE_LAYER , -0.5, Geometry::MAX_TUBE_LAYER  - 0.5
 	);

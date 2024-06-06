@@ -63,7 +63,7 @@ void Decode::startDecoding(
     UISignalBus::getInstance().onUpdate();
     UI::UILock.unlock();
 
-    Decoder decoder(1000);
+    Decoder decoder(3000);
 
     /////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////

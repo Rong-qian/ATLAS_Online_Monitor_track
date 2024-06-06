@@ -142,7 +142,6 @@ void DAQData::binEvent(Event &e) {
     tp.setVerbose(0);
     tp.setMaxResidual(1000000);
 
-
     // Residuals, efficiency, and event display modified from work by 
     // Rongqian Qian. See:
     // https://github.com/Rong-qian/ATLAS_Online_Monitor/
@@ -162,7 +161,6 @@ void DAQData::binEvent(Event &e) {
     //e.EventPrint(geo);
     
     if(pass_event_check) {
-        passEventCount = passEventCount + 1 ;
         // The offline reconstruction implementation will cause memory leak issue,
         // The reason perhaps is Warning in <TStreamerInfo::Build:>: TStreamerBase: base class xxx has no streamer or dictionary it will not be saved
         // Objects like hit can't be saved correctly
@@ -177,11 +175,19 @@ void DAQData::binEvent(Event &e) {
 	*/
 	
         tp.seteventmode(1);
+        tp.setMaxTime(5); //max time in sec to do track reconstruction
         tp.setTarget(&e);
         tp.setRangeSingle(0);
         tp.setIgnoreNone();
         tp.optimize();
+
+        if (tp.getOverTime() == 1){
+            std::cout<< "event " << e.ID() << " exceed time reconstruction limit!" <<std::endl;
+        }        
+        passEventCount = passEventCount + 1 ;
+        
         // Populate residuals
+        
         for(Cluster &c : e.Clusters()) {
 
             for(Hit &hit : c.Hits()) {

@@ -99,6 +99,18 @@ namespace MuonReco {
     }
   }
 
+  /*! \brief If max iteration time is exceeded, optimization will terminate
+   */
+  void Optimizer::setOverTime() {
+    overTime = 1;
+  }
+
+  /*! \brief If max iteration time is exceeded, optimization will terminate
+   */
+  void Optimizer::setMaxTime(double time) {
+    maxTime = time;
+  }
+
   /*! \brief Return layer of first ignored hit
    */
   int Optimizer::getIgnoredLayer() {
@@ -239,10 +251,19 @@ namespace MuonReco {
     Bool_t didConverge = kFALSE;
     double maxChange = 1;
     iteration = 0;
-
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    
     if (verbose)  std::cout << "Optimizing..." << std::endl;
 
     while (maxChange > tolerance && iteration < maxIter) {
+      auto now = std::chrono::high_resolution_clock::now();
+      auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();      
+      if (elapsed >= maxTime){
+	setOverTime();
+      	break;
+      }
+      
       std::cout.setstate(std::ios_base::failbit);
       maxChange = doOneIteration(init);
       std::cout.clear();
@@ -586,6 +607,9 @@ namespace MuonReco {
 
   double Optimizer::getSystShift() {
     return systShift;
+  }
+  int Optimizer::getOverTime() {
+    return overTime;
   }
 }
 

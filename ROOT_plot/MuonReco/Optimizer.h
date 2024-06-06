@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <chrono>
 
 #include "TMatrixD.h"
 #include "TTree.h"
@@ -51,6 +52,8 @@ namespace MuonReco {
     void              seteventmode   (int em);
     void              setTolerance   (double tol);
     void              setMaxIteration(int iter);
+    void              setMaxTime     (double time);
+    void              setOverTime    ();
     void              addDependency  (Optimizer* opt);
     void              addSimultaneous(Optimizer* opt);
     void              setVerbose     (bool b);
@@ -63,6 +66,7 @@ namespace MuonReco {
     double            getChiSq       ();
     double            getDOF         ();
     double            getSystShift   ();
+    int               getOverTime    ();
     Event*            getCurrentEvent();
 
     double            updateParam    ();
@@ -84,6 +88,7 @@ namespace MuonReco {
     double             chiSq;
     double             DOF;
     double             maxResidual;
+    double             maxTime = 9999999;
     int                indexLow;
     int                indexHigh;
     int                ignoredLayer = -1;
@@ -98,9 +103,10 @@ namespace MuonReco {
     TF1*               f_LLH = 0;
     double             systShift = 0;
     int                pullParameterIndex = 0;
-    int                event_mode = 0;
+    int                event_mode = 1;
+    int                overTime = 0;
     double recalculateChiSq();
-    
+ 
 
     friend class ResolutionResult;
   };
