@@ -52,13 +52,14 @@ struct DAQData {
     int totalEventCount    = 0;
     int nonemptyEventCount = 0;
     int packetCount        = 0;
-
+    int passEventCount     = 0;
+    
     int lostPackets     = 0;
 
     int droppedSignals  = 0;
     int droppedEvents   = 0;
     
-    int max_display_event = 10000;
+    int max_display_event = 1000;
     int num_display_event = 0;
     
     /**
@@ -100,6 +101,7 @@ struct DAQData {
 
     std::string T0Path;
     std::string RTPath;
+    
 private:
 
     DAQData();

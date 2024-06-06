@@ -63,7 +63,7 @@ void Decode::startDecoding(
     UISignalBus::getInstance().onUpdate();
     UI::UILock.unlock();
 
-    Decoder decoder(3000);
+    Decoder decoder(1000);
 
     /////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////
@@ -225,15 +225,12 @@ void aggregateEventData(const DecodeData &loopData, DAQData &data) {
 
     data.newEvents = loopData.nonemptyEvents;
 
-
     for(Event &e : data.newEvents) {
 
         data.binEvent(e);
         
     }
-    std::cout<<"size of data"<<sizeof(data)<<std::endl;
     data.updateHitRate(data.totalEventCount);
-
 }
 
 void saveNoiseRate(const string &path, const DAQData &data) {

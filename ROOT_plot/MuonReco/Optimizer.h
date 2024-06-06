@@ -37,7 +37,9 @@ namespace MuonReco {
 
     bool              optimize       (bool init=kTRUE);
     void              optSingle      (TTree* target, int index);
+    void              optSingle      (Event* event);
     void              setTarget      (TTree* target);
+    void              setTarget      (Event* e);
     void              setMaxResidual (double max);
     void              setRange       (int low, int high);
     void              setRangeFull   ();
@@ -46,11 +48,13 @@ namespace MuonReco {
     void              setIgnoreNone  ();
     void              setIgnore      (int index);
     void              setIgnoreLayer (int iLayer);
+    void              seteventmode   (int em);
     void              setTolerance   (double tol);
     void              setMaxIteration(int iter);
     void              addDependency  (Optimizer* opt);
     void              addSimultaneous(Optimizer* opt);
     void              setVerbose     (bool b);
+    int               geteventmode   ();
     double            getMaxResidual ();
     int               getMaxHitIndex ();
     int               getIgnoredLayer();
@@ -72,7 +76,6 @@ namespace MuonReco {
     void pullParameter(int index, double sigma, Bool_t up, double approxError, Bool_t bias);
     double ChiSquareTF1Hook(double* x, double* p);
     double LogLikelihoodHook(double* x, double* p);
-
     std::vector<Optimizer*> dependencies;
     std::vector<Optimizer*> simultaneous;
   private:
@@ -95,7 +98,7 @@ namespace MuonReco {
     TF1*               f_LLH = 0;
     double             systShift = 0;
     int                pullParameterIndex = 0;
-
+    int                event_mode = 0;
     double recalculateChiSq();
     
 

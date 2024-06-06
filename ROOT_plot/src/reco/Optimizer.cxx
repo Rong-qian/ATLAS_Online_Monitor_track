@@ -33,6 +33,14 @@ namespace MuonReco {
     setRangeFull();
   }
 
+  void Optimizer::setTarget(Event* event) {    
+    e = event;
+  }
+  
+  void Optimizer::seteventmode(int em) {
+  	event_mode = em;
+  }
+  
   /*! \brief Set range in number of events
    *  
    * The algorithm will now only optimize over a subset of the target tree, 
@@ -200,7 +208,11 @@ namespace MuonReco {
   double Optimizer::getMaxResidual() {
     return maxResidual;
   }
-  
+
+  int Optimizer::geteventmode() {
+    return event_mode;
+  }
+
   /*! \brief Shortcut to optimize a single event.
    * 
    * Sets target tree, range to one event.  Then runs optimization
@@ -211,6 +223,11 @@ namespace MuonReco {
     optimize();
   }
 
+  void Optimizer::optSingle(Event* event) {
+     setTarget(event);
+     optimize();
+  }
+
   /*! \brief Primary hook for optimizing any parameterization
    * 
    *  Tracks the number of iterations and, if verbose, will print output
@@ -219,7 +236,6 @@ namespace MuonReco {
    */
   Bool_t Optimizer::optimize(Bool_t init/*=kTRUE*/) {
     freopen("/dev/null", "w", stderr);
-
     Bool_t didConverge = kFALSE;
     double maxChange = 1;
     iteration = 0;
@@ -324,6 +340,7 @@ namespace MuonReco {
     for (Optimizer* sim : simultaneous) sim->resetMatrices();
     double res, dist, err;
 
+    if (geteventmode() == 0){
     for (int i = indexLow; i < indexHigh; i++) {
       if (dependencies.size() != 0) {
 	for (Optimizer* opt : dependencies) {
@@ -359,6 +376,34 @@ namespace MuonReco {
       } // end if: event passed cuts
     } // end for: all hits in dataset
 
+    }
+    else{
+      if (e->Pass()) {
+	if (init && iteration == 0) {
+	  this->Initialize(e);
+	  for (Optimizer* sim : simultaneous) sim->Initialize(e);
+	}
+	auto clusters = e->Clusters();
+	for (Cluster c : clusters) {
+	  for (Hit h : c.Hits()) {
+
+	    hitIndex++;
+	    if (skip()) continue;
+
+	    res  = this->Residual(h);
+	    dist = this->Distance(h);
+	    err  = Hit::RadiusError(dist);
+
+	    increment(dist, res, err, h);
+	    for (Optimizer* sim : simultaneous) {
+	      if (!sim->skip())
+		sim->increment(dist, res, err, h);
+	    }
+	  } // end for: clustered hits
+	} // end for: clusters
+      } // end if: event passed cuts
+    }
+    
     double maxDelta = updateParam();
     double simDelta;
     for (Optimizer* sim : simultaneous) {      

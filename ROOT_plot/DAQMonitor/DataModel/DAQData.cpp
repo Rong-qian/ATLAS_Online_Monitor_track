@@ -16,6 +16,7 @@ const double MATCH_WINDOW = 1.5; // us
 // TODO: Consider implementing copy constructor to handle geo better.
 
 DAQData::DAQData() {
+
 }
 
 void DAQData::Reload() {
@@ -45,15 +46,13 @@ void DAQData::lock  () const { dataLock.lock  (); }
 void DAQData::unlock() const { dataLock.unlock(); }
 
 void DAQData::clear () {
-
     plots.clear();
     eventDisplay.Clear();
-
 
     totalEventCount    = 0;
     nonemptyEventCount = 0;
     packetCount        = 0;
-
+    passEventCount     = 0;
 
     lostPackets     = 0;
 
@@ -161,16 +160,27 @@ void DAQData::binEvent(Event &e) {
 		}
 	}
     //e.EventPrint(geo);
+    
     if(pass_event_check) {
-        TTree *optTree = new TTree("optTree", "optTree");
-
+        passEventCount = passEventCount + 1 ;
+        // The offline reconstruction implementation will cause memory leak issue,
+        // The reason perhaps is Warning in <TStreamerInfo::Build:>: TStreamerBase: base class xxx has no streamer or dictionary it will not be saved
+        // Objects like hit can't be saved correctly
+        // see: https://root-forum.cern.ch/t/warning-in-tstreamerinfo-build/9808 for possible reason
+        // The fix is to add method in Optizimer class so it skip the step saving event to tree then get back
+        // The optimization is directly on the event, controlled by seteventmode(1), default value 0 is using TTree
+        
+        /*TTree *optTree = new TTree("optTree", "optTree");
         optTree->Branch("event", "Event", &e);
         optTree->Fill();
-        tp.setTarget(optTree);
+        delete optTree;
+	*/
+	
+        tp.seteventmode(1);
+        tp.setTarget(&e);
         tp.setRangeSingle(0);
         tp.setIgnoreNone();
         tp.optimize();
-
         // Populate residuals
         for(Cluster &c : e.Clusters()) {
 
@@ -182,52 +192,6 @@ void DAQData::binEvent(Event &e) {
 
         }
 
-        /*
-        for(const Hit &hit : e.WireHits()) {
-
-            int hit_layer;
-            int hit_column;
-
-            geo.GetHitLayerColumn(
-                hit.TDC(), 
-                hit.Channel(),
-                &hit_layer,
-                &hit_column
-            );
-
-            ++nTotal[hit_layer][hit_column];
-
-            int iL, iC;
-            double _hitX, _hitY;
-
-            geo.GetHitLayerColumn(hit.TDC(), hit.Channel(), &iL, &iC);
-            geo.GetHitXY(hit.TDC(), hit.Channel(), &_hitX, &_hitY);
-
-            double trackDist = tp.Distance(Hit(
-                0, 0, 0, 0, 0, 0, iL, iC, _hitX, _hitY
-            ));
-
-            if(trackDist <= Geometry::column_distance / 2) {
-
-                ++nHits[hit_layer][hit_column];
-
-            }
-
-            tube_efficiency->SetBinContent(
-                hit_layer  + 1,
-                hit_column + 1,
-                nHits[hit_layer][hit_column] / nTotal[hit_layer][hit_column]
-            );
-
-            cout << hit_layer << endl;
-            cout << hit_column << endl;
-
-
-
-            // need to check distance
-
-        }
-        */
 
         // Populate efficiency
         // Iterate through each tube via tdc and channel index
@@ -272,7 +236,6 @@ void DAQData::binEvent(Event &e) {
                                 tubeIsHit = true;
 
                             }
-
                         }
 		        ++nTotal[iL][iC];
 			
@@ -304,8 +267,8 @@ void DAQData::binEvent(Event &e) {
             }
 
         }
-
-        delete optTree;
+	
+        //delete optTree;
 
         // TODO: It would be nice to put this in the display buffer in
         //       the decoder.
@@ -324,6 +287,8 @@ void DAQData::binEvent(Event &e) {
                 eventDisplayBuffer.push_back(e);
         	num_display_event++;
         }
-        //std::cout<<"size of ed buffer"<<(eventDisplayBuffer.size())<<std::endl;
+        
+        //std::cout<<"size of plots"<<plots.p_tdc_time.size()<<std::endl;
+        //std::cout<<"size of ed buffer"<<sizeof(eventDisplayBuffer)<<std::endl;
     }
 }

@@ -2,10 +2,10 @@
 
 namespace MuonReco {
   
-  Int_t Geometry::MAX_TDC          = 18;
+  Int_t Geometry::MAX_TDC          = 24;
   Int_t Geometry::MAX_TDC_CHANNEL  = 24;
   Int_t Geometry::MAX_TUBE_LAYER   =  8;
-  Int_t Geometry::MAX_TUBE_COLUMN  = 54;
+  Int_t Geometry::MAX_TUBE_COLUMN  = 65;
   Int_t Geometry::MAX_TDC_LAYER    =  4;
   Int_t Geometry::MAX_TDC_COLUMN   =  6;
 
@@ -270,9 +270,9 @@ namespace MuonReco {
   }
 
   void Geometry::Configure(ParameterSet ps) {
-    Geometry::MAX_TDC         = ps.getInt("MAX_TDC",         18, 0);
+    Geometry::MAX_TDC         = ps.getInt("MAX_TDC",         24, 0);
     Geometry::MAX_TDC_CHANNEL = ps.getInt("MAX_TDC_CHANNEL", 24, 0);
-    Geometry::MAX_TUBE_COLUMN = ps.getInt("MAX_TUBE_COLUMN", 54, 0);
+    Geometry::MAX_TUBE_COLUMN = ps.getInt("MAX_TUBE_COLUMN", 65, 0);
     Geometry::MAX_TUBE_LAYER  = ps.getInt("MAX_TUBE_LAYER",  8,  0);
     Geometry::MAX_TDC_COLUMN  = ps.getInt("MAX_TDC_COLUMN",  6,  0);
     Geometry::MAX_TDC_LAYER   = ps.getInt("MAX_TDC_LAYER",   4,  0);
